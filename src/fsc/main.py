@@ -1,3 +1,5 @@
+import importlib.metadata
+
 import typer
 from rich.console import Console
 
@@ -13,7 +15,31 @@ console = Console()
 app = typer.Typer(
   help="FileSpecContractor - token-saving contracts for your codebase.",
   epilog="https://github.com/UmbrellaLeaf5/file_spec_contractor",
+  invoke_without_command=True,
 )
+
+
+@app.callback()
+def _version_callback(
+  version: bool = typer.Option(
+    False,
+    "--version",
+    help="Show version and exit",
+    is_eager=True,
+  ),
+) -> None:
+  if version:
+    console.print(f"fsc {_get_version()}")
+    raise typer.Exit()
+
+
+def _get_version() -> str:
+  try:
+    return importlib.metadata.version("file-spec-contractor")
+
+  except importlib.metadata.PackageNotFoundError:
+    return "unknown"
+
 
 app.command(
   name="generate",
