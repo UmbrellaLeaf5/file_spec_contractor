@@ -68,6 +68,9 @@ def apply_cli_overrides(cfg: FSCConfig, cli_args: dict) -> FSCConfig:
   if cli_args.get("output_dir"):
     cfg.output.output_dir = cli_args["output_dir"]
 
+  if cli_args.get("batch_size") is not None:
+    cfg.output.batch_size = cli_args["batch_size"]
+
   if cli_args.get("prompt_file"):
     cfg.prompt.file = cli_args["prompt_file"]
 

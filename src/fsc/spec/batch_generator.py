@@ -63,6 +63,7 @@ def generate_batch(
     return []
 
   results: list[Path] = []
+  file_index = 0
 
   for rel_path, spec_text in sorted(parsed.items()):
     src = src_paths.get(rel_path)
@@ -73,7 +74,8 @@ def generate_batch(
       )
       continue
 
-    out_path = resolve_output_path(src, project_root, cfg)
+    out_path = resolve_output_path(src, project_root, cfg, file_index=file_index)
+    file_index += 1
 
     if not dry_run:
       write_spec_atomic(out_path, spec_text)

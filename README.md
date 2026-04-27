@@ -114,10 +114,11 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--extensions`        | File extensions to include (default: `.py`)                        |
 | `--exclude-dirs`      | Directories to skip                                                |
 | `--exclude-files`     | File patterns to skip                                              |
-| `--provider` | LLM provider: `openrouter` (default) or `deepseek` |
-| `--api-key` | API key for the selected provider |
-| `--output-mode` | `mirror` (default) or `adjacent` |
-| `--output-dir`        | Output directory for mirror mode (default: `.fsc/specs`)           |
+| `--provider`          | LLM provider: `openrouter` (default) or `deepseek`                 |
+| `--api-key`           | API key for the selected provider                                  |
+| `--output-mode`       | `mirror` (default), `adjacent`, or `batch`                         |
+| `--output-dir`        | Output directory for mirror/batch mode (default: `.fsc/specs`)     |
+| `--batch-size`        | Files per folder in batch mode (default: `50`)                     |
 | `--prompt-file`       | Custom system prompt file                                          |
 | `--language`          | Output language: `en` (default) or `ru`                            |
 | `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`)                 |
@@ -156,8 +157,9 @@ exclude_files = ["setup.py", "conftest.py"]
 # Output language and mode
 [output]
 language = "en"          # "en" or "ru"
-output_mode = "mirror"   # "mirror" or "adjacent"
+output_mode = "mirror"   # "mirror", "adjacent", or "batch"
 output_dir = ".fsc/specs"
+batch_size = 50          # files per folder (batch mode)
 
 # LLM provider
 [api]
@@ -177,8 +179,8 @@ force_per_file = false     # skip batch mode, use per-file
 
 API keys are **never stored in config files**. Three ways to provide them (in priority order):
 
-1. **CLI flag** — `--api-key` (highest priority)
-2. **Environment variable** — `OPEN_ROUTER_API_KEY` / `DEEPSEEK_API_KEY`
+1. **CLI flag** - `--api-key` (highest priority)
+2. **Environment variable** - `OPEN_ROUTER_API_KEY` / `DEEPSEEK_API_KEY`
 3. **`.env` file** in project root (lowest priority)
 
 **OpenRouter** (default):
@@ -217,10 +219,40 @@ fsc generate --provider deepseek
 
 ### Output Modes
 
-| Mode       | Behavior                                                                                                         |
-| ---------- | ---------------------------------------------------------------------------------------------------------------- |
-| `adjacent` | Saves `file.fsc.md` right next to `file.py`                                                                      |
-| `mirror`   | Saves to `output_dir`, preserving directory structure (e.g., `src/machine.py` → `.fsc/specs/src/machine.fsc.md`) |
+| Mode       | Behaviour                                                                                                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `adjacent` | Saves `file.fsc.md` right next to `file.py`                                                                                                                                                                   |
+| `mirror`   | Saves to `output_dir`, preserving directory structure (e.g., `src/machine.py` → `.fsc/specs/src/machine.fsc.md`)                                                                                              |
+| `batch`    | Groups specs into numbered folders `batch-1/`, `batch-2/`, etc. File names encode the original path (e.g., `src/machine.py` → `src__machine.fsc.md`). Folder size controlled by `batch_size` (default: `50`). |
+
+**Batch mode example** (`batch_size = 50`, 120 files):
+
+```
+.fsc/batches/
+├── batch-1/
+│   ├── src__controllers__UserController.fsc.md
+│   └── ... (49 more files)
+├── batch-2/
+│   ├── src__models__Product.fsc.md
+│   └── ... (49 more files)
+└── batch-3/
+    └── ... (20 files)
+```
+
+Configure via CLI or config:
+
+```bash
+fsc init --output-mode batch --batch-size 100
+fsc generate --output-mode batch --batch-size 50
+```
+
+```toml
+# .fsc/config.toml
+[output]
+output_mode = "batch"
+output_dir = ".fsc/batches"
+batch_size = 50
+```
 
 ### Prompt
 

@@ -61,6 +61,9 @@ def init_command(
   provider: str | None = typer.Option(None, "--provider"),
   output_mode: str | None = typer.Option(None, "--output-mode"),
   output_dir: Path | None = typer.Option(None, "--output-dir"),
+  batch_size: int | None = typer.Option(
+    None, "--batch-size", help="Files per batch folder (batch output mode)"
+  ),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   language: str | None = typer.Option(None, "--language"),
   concurrency: int = typer.Option(
@@ -79,6 +82,7 @@ def init_command(
     provider=provider,
     output_mode=output_mode,
     output_dir=str(output_dir) if output_dir else None,
+    batch_size=batch_size,
     prompt_file=str(prompt_file) if prompt_file else None,
     language=language,
     concurrency=concurrency,

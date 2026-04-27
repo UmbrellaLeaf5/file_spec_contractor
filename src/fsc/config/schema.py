@@ -15,6 +15,7 @@ class OutputConfig:
   language: str = "en"
   output_mode: str = "mirror"
   output_dir: str = ".fsc/specs"
+  batch_size: int = 50
 
 
 @dataclass

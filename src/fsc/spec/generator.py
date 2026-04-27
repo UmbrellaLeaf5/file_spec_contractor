@@ -48,11 +48,12 @@ def _process_one_file(
   cfg: FSCConfig,
   project_root: Path,
   dry_run: bool,
+  file_index: int = 0,
 ) -> Path | None:
   user_prompt = _build_user_prompt(rel_path, language, code)
   console.log(f"Generating spec for {rel_path} ...")
   spec_text = provider.generate(system_prompt, user_prompt)
-  out_path = resolve_output_path(src_path, project_root, cfg)
+  out_path = resolve_output_path(src_path, project_root, cfg, file_index=file_index)
 
   if not dry_run:
     write_spec_atomic(out_path, spec_text)
@@ -98,6 +99,9 @@ def generate_for_files(
   if skipped > 0:
     console.log(f"Skipped {skipped} up-to-date files.")
 
+  sorted_paths = sorted(file_data)
+  index_map = {path: i for i, path in enumerate(sorted_paths)}
+
   if not force_per_file:
     mode = "batch"
 
@@ -140,6 +144,7 @@ def generate_for_files(
           cfg,
           project_root,
           dry_run,
+          index_map[rel_path],
         )
 
         futures[future] = rel_path
@@ -185,6 +190,7 @@ def generate_for_files(
         cfg,
         project_root,
         dry_run,
+        index_map[rel_path],
       )
 
       if out is not None:
