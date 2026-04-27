@@ -5,27 +5,6 @@ import tomllib
 from fsc.config.schema import FSCConfig
 
 
-DEFAULTS: dict = {
-  "project": {
-    "extensions": [".py"],
-    "exclude_dirs": [".venv", "venv", ".git", "__pycache__", "tests"],
-    "exclude_files": ["setup.py", "conftest.py"],
-  },
-  "output": {
-    "language": "en",
-    "output_mode": "mirror",
-    "output_dir": ".fsc/specs",
-  },
-  "api": {
-    "provider": "openrouter",
-    "deepseek_api_key": "",
-    "openrouter_api_key": "",
-  },
-  "prompt": {"file": ".fsc/PROMPT.md"},
-  "runtime": {"concurrency": 1, "force_per_file": False},
-}
-
-
 def _load_toml(path: Path) -> dict:
   if not path.exists():
     return {}
@@ -57,7 +36,7 @@ def deep_update(dst: dict, src: dict) -> dict:
 
 
 def load_merged_config(project_root: Path) -> FSCConfig:
-  cfg = deep_update({}, DEFAULTS)
+  cfg = FSCConfig().to_dict()
   user = load_user_config()
   project = load_project_config(project_root)
 

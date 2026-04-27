@@ -5,7 +5,7 @@ from dataclasses import asdict, dataclass, field
 class ProjectConfig:
   extensions: list[str] = field(default_factory=lambda: [".py"])
   exclude_dirs: list[str] = field(
-    default_factory=lambda: [".venv", "venv", ".git", "__pycache__"]
+    default_factory=lambda: [".venv", "venv", ".git", "__pycache__", "build"]
   )
   exclude_files: list[str] = field(default_factory=list)
 
