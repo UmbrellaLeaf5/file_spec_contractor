@@ -59,7 +59,7 @@ app.command(
     "Examples:\n"
     "  fsc generate\n"
     "  fsc generate --file src/machine.py\n"
-    "  fsc generate --extensions .py .kt --language ru\n"
+    "  fsc generate --extensions .py .kt\n"
     "  fsc generate --force-per-file -c 5\n"
     "  fsc generate --dry-run --verbose\n"
     "  fsc generate --output-mode adjacent"

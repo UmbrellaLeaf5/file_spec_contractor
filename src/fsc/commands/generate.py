@@ -32,7 +32,6 @@ def generate_command(
     None, "--batch-size", help="Files per batch folder (batch output mode)"
   ),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
-  language: str | None = typer.Option(None, "--language"),
   concurrency: int = typer.Option(
     1, "-c", "--concurrency", help="Parallel requests for per-file mode"
   ),
@@ -62,7 +61,6 @@ def generate_command(
     output_dir=str(output_dir) if output_dir else None,
     batch_size=batch_size,
     prompt_file=str(prompt_file) if prompt_file else None,
-    language=language,
     concurrency=concurrency,
     force_per_file=force_per_file,
   )
@@ -75,6 +73,20 @@ def generate_command(
 
   prompt_path = resolve_prompt_path(project_root, cfg, cli_prompt=cfg.prompt.file)
   prompt_text = load_prompt(prompt_path, cfg.output.language)
+
+  lang = cfg.output.language
+
+  if lang == "ru" and "русс" not in prompt_text.lower():
+    console.print(
+      "[yellow]Warning: language is set to 'ru' but PROMPT.md does not appear "
+      "to be in Russian. Run `fsc init --language ru --yes` to regenerate.[/yellow]"
+    )
+
+  if lang == "en" and "engl" not in prompt_text.lower():
+    console.print(
+      "[yellow]Warning: language is set to 'en' but PROMPT.md does not appear "
+      "to be in English. Run `fsc init --language en --yes` to regenerate.[/yellow]"
+    )
 
   provider_name = cfg.api.provider
   dotenv = load_dotenv(project_root)

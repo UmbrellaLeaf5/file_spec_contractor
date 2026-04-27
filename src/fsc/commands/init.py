@@ -32,7 +32,7 @@ def _do_init(yes: bool, cli_args: dict) -> None:
   prompt_path = fsc_dir / "PROMPT.md"
 
   if not prompt_path.exists() or yes:
-    prompt_path.write_text(builtin_prompt_text())
+    prompt_path.write_text(builtin_prompt_text(cfg.output.language), encoding="utf-8")
     console.print("[green]Created .fsc/PROMPT.md[/green]")
 
   else:
