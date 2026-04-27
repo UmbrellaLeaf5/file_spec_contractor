@@ -361,12 +361,15 @@ uv build
 - [x] 63 tests (unit, integration, CLI)
 - [x] Spec auto-move on output mode change (no wasted regeneration)
 - [x] `fsc --version` and setuptools-scm versioning
-- [x] `fsc init <dir>` — initialise in any directory
+- [x] `fsc init <dir>` - initialise in any directory
 - [x] CI pipeline with GitHub Actions
 - [x] `--force` / `--yes` / confirmation prompts for destructive commands
-- [ ] PyPI publish automation
+- [x] PyPI publish automation
 - [ ] `--update` flag for incremental regeneration
+- [ ] clean command just to delete all specs
 - [ ] Rich progress bars for large projects
 - [ ] Local model support (Ollama, LM Studio)
-- [ ] Publish to PyPI (`pip install file_spec_contractor`)
+- [ ] check if Scala is used and make warning not to use short name
+- [ ] add long name usage (file-spec-contractor or file_spec_contractor instead of fsc)
+- [x] Publish to PyPI (`pip install file_spec_contractor`)
 - [ ] VS Code extension (generate specs from context menu / command palette)
