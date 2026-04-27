@@ -123,6 +123,7 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--language`          | Output language: `en` (default) or `ru`                            |
 | `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`)                 |
 | `--force-per-file`    | Force per-file generation instead of batch                         |
+| `-f`, `--force`       | Regenerate all specs, ignoring cache                               |
 | `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
 | `--verbose`           | Detailed output (`generate` only)                                  |
 
@@ -291,13 +292,14 @@ Each generated spec follows this structure:
 
 ## Tech Stack
 
-| Component | Library                                                     |
-| --------- | ----------------------------------------------------------- |
-| CLI       | [Typer](https://typer.tiangolo.com/)                        |
-| Logging   | [Rich](https://rich.readthedocs.io/)                        |
-| HTTP      | [httpx](https://www.python-httpx.org/)                      |
-| Config    | [python-dotenv](https://github.com/theskumar/python-dotenv) |
-| Testing   | [pytest](https://docs.pytest.org/)                          |
+| Component  | Library                                                     |
+| ---------- | ----------------------------------------------------------- |
+| CLI        | [Typer](https://typer.tiangolo.com/)                        |
+| Validation | [Pydantic](https://docs.pydantic.dev/)                      |
+| Logging    | [Rich](https://rich.readthedocs.io/)                        |
+| HTTP       | [httpx](https://www.python-httpx.org/)                      |
+| Config     | [python-dotenv](https://github.com/theskumar/python-dotenv) |
+| Testing    | [pytest](https://docs.pytest.org/)                          |
 
 ## Development
 
@@ -305,10 +307,10 @@ Each generated spec follows this structure:
 # Install dependencies (including dev)
 uv sync --dev
 
-# Run tests
+# Run all tests (63 tests)
 uv run python -m pytest tests/
 
-# Run specific test
+# Run specific test file
 uv run python -m pytest tests/test_deepseek.py -v
 
 # Run CLI in dev
@@ -321,16 +323,20 @@ uv run fsc --help
 - [x] DeepSeek API integration
 - [x] OpenRouter API integration (free `gpt-oss-120b` model)
 - [x] Multi-provider support with `--provider` flag
-- [x] Batch generation mode (all files in one request)
+- [x] Batch generation mode (all files in one request with fallback)
 - [x] Parallel per-file generation (`--force-per-file -c N`)
-- [x] Configuration file support (TOML)
+- [x] Spec caching with `--force` to regenerate
+- [x] Configuration file support (TOML) with Pydantic validation
 - [x] `.env` file support for API keys (via python-dotenv)
-- [x] All config flags available on `init` and `reinit`
-- [x] Dual output modes (`adjacent` / `mirror`)
-- [x] Prompt resolution (project file → built-in fallback)
+- [x] All config flags available on `init`, `reinit`, and `generate`
+- [x] Batch output mode, mirror, and adjacent
+- [x] Prompt resolution (project file → built-in fallback, per-language)
 - [x] Multi-language prompt support (en, ru)
 - [x] Installable CLI entry point (`fsc`)
+- [x] Graceful shutdown on Ctrl+C
+- [x] 63 tests (unit, integration, CLI)
 - [ ] `--update` flag for incremental regeneration
 - [ ] Rich progress bars for large projects
 - [ ] Local model support (Ollama, LM Studio)
+- [ ] Publish to PyPI (`pip install file-spec-contractor`)
 - [ ] VS Code extension (generate specs from context menu / command palette)
