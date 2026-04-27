@@ -88,6 +88,7 @@ def test_is_spec_fresh_no_spec(tmp_path: Path):
   src.write_text("x = 1")
 
   cfg = FSCConfig()
+  cfg.output.output_dir = str(tmp_path / ".fsc" / "specs")
   assert is_spec_fresh(src, tmp_path, cfg) is False
 
 
@@ -96,6 +97,7 @@ def test_is_spec_fresh_spec_newer(tmp_path: Path):
   src.write_text("x = 1")
 
   cfg = FSCConfig()
+  cfg.output.output_dir = str(tmp_path / ".fsc" / "specs")
   spec_path = resolve_output_path(src, tmp_path, cfg)
   spec_path.parent.mkdir(parents=True, exist_ok=True)
   spec_path.write_text("spec")

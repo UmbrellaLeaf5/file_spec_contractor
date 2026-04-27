@@ -1,80 +1,58 @@
-from dataclasses import asdict, dataclass, field
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator
 
 
-@dataclass
-class ProjectConfig:
-  extensions: list[str] = field(default_factory=lambda: [".py"])
-  exclude_dirs: list[str] = field(
+class ProjectConfig(BaseModel):
+  extensions: list[str] = Field(default_factory=lambda: [".py"])
+  exclude_dirs: list[str] = Field(
     default_factory=lambda: [".venv", "venv", ".git", "__pycache__", "build"]
   )
-  exclude_files: list[str] = field(default_factory=list)
+  exclude_files: list[str] = Field(default_factory=list)
 
-  def __post_init__(self):
-    if not isinstance(self.extensions, list):
-      raise ValueError(f"extensions must be a list, got {type(self.extensions).__name__}")
+  @field_validator("extensions")
+  @classmethod
+  def _check_extensions(cls, v: list[str]) -> list[str]:
+    for ext in v:
+      if not ext.startswith("."):
+        raise ValueError(f"Extension '{ext}' must start with '.'")
 
-    for ext in self.extensions:
-      if not isinstance(ext, str) or not ext.startswith("."):
-        raise ValueError(f"Extension '{ext}' must be a string starting with '.'")
+    return v
 
 
-@dataclass
-class OutputConfig:
+class OutputConfig(BaseModel):
   language: str = "en"
-  output_mode: str = "mirror"
+  output_mode: Literal["mirror", "adjacent", "batch"] = "mirror"
   output_dir: str = ".fsc/specs"
-  batch_size: int = 50
-
-  def __post_init__(self):
-    if self.output_mode not in ("mirror", "adjacent", "batch"):
-      raise ValueError(
-        f"output_mode must be one of: mirror, adjacent, batch, got '{self.output_mode}'"
-      )
-
-    if not isinstance(self.batch_size, int) or self.batch_size <= 0:
-      raise ValueError(f"batch_size must be a positive integer, got {self.batch_size}")
+  batch_size: int = Field(default=50, gt=0)
 
 
-@dataclass
-class ApiConfig:
+class ApiConfig(BaseModel):
   provider: str = "openrouter"
 
 
-@dataclass
-class PromptConfig:
+class PromptConfig(BaseModel):
   file: str = ".fsc/PROMPT.md"
 
 
-@dataclass
-class RuntimeConfig:
-  concurrency: int = 1
+class RuntimeConfig(BaseModel):
+  concurrency: int = Field(default=1, ge=1)
   force_per_file: bool = False
 
-  def __post_init__(self):
-    if not isinstance(self.concurrency, int) or self.concurrency < 1:
-      raise ValueError(f"concurrency must be >= 1, got {self.concurrency}")
 
-
-@dataclass
-class FSCConfig:
-  project: ProjectConfig = field(default_factory=ProjectConfig)
-  output: OutputConfig = field(default_factory=OutputConfig)
-  api: ApiConfig = field(default_factory=ApiConfig)
-  prompt: PromptConfig = field(default_factory=PromptConfig)
-  runtime: RuntimeConfig = field(default_factory=RuntimeConfig)
+class FSCConfig(BaseModel):
+  project: ProjectConfig = Field(default_factory=ProjectConfig)
+  output: OutputConfig = Field(default_factory=OutputConfig)
+  api: ApiConfig = Field(default_factory=ApiConfig)
+  prompt: PromptConfig = Field(default_factory=PromptConfig)
+  runtime: RuntimeConfig = Field(default_factory=RuntimeConfig)
 
   @classmethod
   def from_dict(cls, data: dict) -> "FSCConfig":
-    return cls(
-      project=ProjectConfig(**data.get("project", {})),
-      output=OutputConfig(**data.get("output", {})),
-      api=ApiConfig(**data.get("api", {})),
-      prompt=PromptConfig(**data.get("prompt", {})),
-      runtime=RuntimeConfig(**data.get("runtime", {})),
-    )
+    return cls(**data)
 
   def to_dict(self) -> dict:
-    return asdict(self)
+    return self.model_dump()
 
   def to_toml(self) -> str:
     d = self.to_dict()
