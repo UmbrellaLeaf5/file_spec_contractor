@@ -7,7 +7,7 @@
 [![httpx](https://img.shields.io/badge/httpx-0.24+-orange)](https://www.python-httpx.org/)
 [![python-dotenv](https://img.shields.io/badge/dotenv-1.0+-yellow)](https://github.com/theskumar/python-dotenv)
 [![License](https://img.shields.io/badge/License-Unlicense-lightgrey)](https://unlicense.org)
-[![Tests](https://img.shields.io/badge/tests-63_passed-green)]()
+[![Tests](https://github.com/UmbrellaLeaf5/file_spec_contractor/workflows/Tests/badge.svg)](https://github.com/UmbrellaLeaf5/file_spec_contractor/actions/workflows/tests.yml)
 
 > Token-saving contracts for your codebase.
 
