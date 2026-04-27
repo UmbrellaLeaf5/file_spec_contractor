@@ -36,6 +36,9 @@ def generate_command(
   force_per_file: bool = typer.Option(
     False, "--force-per-file", help="Force per-file generation instead of batch"
   ),
+  force: bool = typer.Option(
+    False, "-f", "--force", help="Regenerate all specs, ignoring cache"
+  ),
   dry_run: bool = typer.Option(False, "--dry-run"),
   verbose: bool = typer.Option(False, "--verbose"),
 ) -> None:
@@ -139,6 +142,7 @@ def generate_command(
       dry_run=dry_run,
       concurrency=cfg.runtime.concurrency,
       force_per_file=cfg.runtime.force_per_file,
+      force=force,
     )
 
   except KeyboardInterrupt:

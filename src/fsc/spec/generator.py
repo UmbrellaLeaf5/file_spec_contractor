@@ -7,7 +7,7 @@ from rich.console import Console
 from fsc.config.schema import FSCConfig
 from fsc.providers.base import BaseProvider
 from fsc.spec.batch_generator import generate_batch
-from fsc.utils.fs import resolve_output_path, write_spec_atomic
+from fsc.utils.fs import is_spec_fresh, resolve_output_path, write_spec_atomic
 
 
 console = Console()
@@ -28,6 +28,14 @@ def _build_user_prompt(file_path: str, language: str, code: str) -> str:
     f"LANG: {language}\n\n"
     f"```\n{code}\n```"
   )
+
+
+def _resolve_rel(path: Path, project_root: Path) -> str:
+  try:
+    return str(path.relative_to(project_root))
+
+  except ValueError:
+    return str(path)
 
 
 def _process_one_file(
@@ -61,23 +69,34 @@ def generate_for_files(
   dry_run: bool = False,
   concurrency: int = 1,
   force_per_file: bool = False,
+  force: bool = False,
 ) -> list[Path]:
   file_data: dict[str, str] = {}
   src_paths: dict[str, Path] = {}
+  skipped = 0
 
   for src_path in files:
+    if not force and is_spec_fresh(src_path, project_root, cfg):
+      rel_path = _resolve_rel(src_path, project_root)
+      console.log(f"Skipping {rel_path} (spec is up to date)")
+      skipped += 1
+      continue
+
     code = _read_file_safe(src_path)
-
-    try:
-      rel_path = str(src_path.relative_to(project_root))
-
-    except ValueError:
-      rel_path = str(src_path)
-
+    rel_path = _resolve_rel(src_path, project_root)
     file_data[rel_path] = code
     src_paths[rel_path] = src_path
 
   file_count = len(file_data)
+
+  if file_count == 0:
+    if skipped > 0:
+      console.print(f"[green]All {skipped} files are up to date.[/green]")
+
+    return []
+
+  if skipped > 0:
+    console.log(f"Skipped {skipped} up-to-date files.")
 
   if not force_per_file:
     mode = "batch"

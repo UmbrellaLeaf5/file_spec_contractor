@@ -40,7 +40,13 @@ def resolve_output_path(src_path: Path, project_root: Path, cfg: FSCConfig) -> P
     return src_path.with_name(src_path.stem + ".fsc.md")
 
   out_dir = Path(cfg.output.output_dir)
-  rel = src_path.relative_to(project_root)
+
+  try:
+    rel = src_path.relative_to(project_root)
+
+  except ValueError:
+    rel = src_path
+
   target = out_dir / rel
 
   return target.with_suffix(".fsc.md")
@@ -52,3 +58,12 @@ def write_spec_atomic(path: Path, text: str) -> None:
   tmp.write_text(text, encoding="utf-8")
 
   os.replace(tmp, path)
+
+
+def is_spec_fresh(src_path: Path, project_root: Path, cfg: FSCConfig) -> bool:
+  spec_path = resolve_output_path(src_path, project_root, cfg)
+
+  if not spec_path.exists():
+    return False
+
+  return spec_path.stat().st_mtime >= src_path.stat().st_mtime
