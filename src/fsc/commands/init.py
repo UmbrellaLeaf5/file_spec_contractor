@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import typer
@@ -11,18 +12,56 @@ from fsc.prompt_loader import builtin_prompt_text
 console = Console(log_path=False)
 
 
-def _do_init(yes: bool, cli_args: dict, target_dir: Path | None = None) -> None:
+def _remove_fsc_artifacts(root: Path) -> int:
+  removed = 0
+  fsc_dir = root / ".fsc"
+
+  if fsc_dir.exists():
+    shutil.rmtree(fsc_dir)
+    removed += 1
+
+  for spec in sorted(root.rglob("*.py.fsc.md")):
+    spec.unlink()
+    removed += 1
+
+  return removed
+
+
+def _confirm_destructive(yes: bool) -> None:
+  if yes:
+    return
+
+  typer.confirm(
+    "This will remove all existing .fsc/ configuration and .py.fsc.md files. Continue?",
+    abort=True,
+  )
+
+
+def _do_init(
+  force: bool,
+  yes: bool,
+  cli_args: dict,
+  target_dir: Path | None = None,
+) -> None:
   root = Path(target_dir).resolve() if target_dir else Path.cwd()
   root.mkdir(parents=True, exist_ok=True)
   fsc_dir = root / ".fsc"
   config_path = fsc_dir / "config.toml"
 
-  if config_path.exists() and not yes:
+  if config_path.exists() and not force:
     console.print(
       "[yellow]FileSpecContractor is already configured (.fsc/config.toml exists).\n"
-      "Use --yes to overwrite or fsc reinit to recreate.[/yellow]"
+      "Use --force to recreate from scratch.[/yellow]"
     )
     return
+
+  if force:
+    removed = _remove_fsc_artifacts(root)
+
+    if removed > 0:
+      _confirm_destructive(yes)
+      _remove_fsc_artifacts(root)
+      console.print(f"[green]Removed {removed} existing artifact{'s' if removed != 1 else ''}.[/green]")
 
   fsc_dir.mkdir(parents=True, exist_ok=True)
 
@@ -32,13 +71,8 @@ def _do_init(yes: bool, cli_args: dict, target_dir: Path | None = None) -> None:
   console.print("[green]Created .fsc/config.toml[/green]")
 
   prompt_path = fsc_dir / "PROMPT.md"
-
-  if not prompt_path.exists() or yes:
-    prompt_path.write_text(builtin_prompt_text(cfg.output.language), encoding="utf-8")
-    console.print("[green]Created .fsc/PROMPT.md[/green]")
-
-  else:
-    console.print("[yellow].fsc/PROMPT.md already exists, skipping[/yellow]")
+  prompt_path.write_text(builtin_prompt_text(cfg.output.language), encoding="utf-8")
+  console.print("[green]Created .fsc/PROMPT.md[/green]")
 
   console.print("\n[bold]Done![/bold] Next steps:")
   console.print("  1. Set your API key (pick one):")
@@ -55,8 +89,11 @@ def init_command(
   directory: Path | None = typer.Argument(
     None, help="Target directory (default: current directory)"
   ),
+  force: bool = typer.Option(
+    False, "-f", "--force", help="Remove existing artifacts and recreate"
+  ),
   yes: bool = typer.Option(
-    False, "-y", "--yes", help="Skip confirmations, overwrite existing files"
+    False, "-y", "--yes", help="Skip confirmation prompts"
   ),
   extensions: list[str] | None = typer.Option(
     None, "--extensions", help="File extensions to include"
@@ -98,4 +135,4 @@ def init_command(
     force_per_file=force_per_file,
   )
 
-  _do_init(yes, cli_args, directory)
+  _do_init(force, yes, cli_args, directory)

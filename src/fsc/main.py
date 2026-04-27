@@ -78,7 +78,8 @@ app.command(
     "After init, set your API key and run fsc generate.\n\n"
     "Examples:\n"
     "  fsc init\n"
-    "  fsc init --yes              # overwrite existing files\n"
+    "  fsc init --force           # recreate from scratch\n"
+    "  fsc init --force -y        # skip confirmation\n"
     "  fsc init --extensions .py .kt --language ru\n"
     "  fsc init --provider deepseek"
   ),
@@ -87,10 +88,11 @@ app.command(
 app.command(
   name="deinit",
   help=(
-    "Remove .fsc/ and all generated .fsc.md files from the project tree.\n\n"
+    "Remove .fsc/ and all generated .py.fsc.md files from the project tree.\n\n"
+    "Prompts for confirmation unless -y is used.\n\n"
     "Examples:\n"
     "  fsc deinit\n"
-    "  fsc deinit && fsc reinit  # clean start"
+    "  fsc deinit -y             # skip confirmation"
   ),
 )(deinit_command)
 
@@ -98,9 +100,11 @@ app.command(
   name="reinit",
   help=(
     "deinit + init: remove all artifacts and recreate .fsc/ from scratch.\n\n"
+    "Prompts for confirmation unless -y is used.\n"
     "Accepts all the same flags as init to customize the new config.\n\n"
     "Examples:\n"
     "  fsc reinit\n"
+    "  fsc reinit -y\n"
     "  fsc reinit --extensions .py .kt --language ru\n"
     "  fsc reinit --provider deepseek"
   ),

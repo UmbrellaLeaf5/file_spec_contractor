@@ -4,6 +4,8 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+from fsc.commands.init import _confirm_destructive
+
 
 console = Console(log_path=False)
 
@@ -12,8 +14,11 @@ def deinit_command(
   directory: Path | None = typer.Argument(
     None, help="Target directory (default: current directory)"
   ),
+  yes: bool = typer.Option(
+    False, "-y", "--yes", help="Skip confirmation prompts"
+  ),
 ) -> None:
-  """Remove .fsc/ and all generated .fsc.md files from project."""
+  """Remove .fsc/ and all generated .py.fsc.md files from project."""
 
   root = Path(directory).resolve() if directory else Path.cwd()
   removed_dirs = 0
@@ -22,6 +27,7 @@ def deinit_command(
   fsc_dir = root / ".fsc"
 
   if fsc_dir.exists():
+    _confirm_destructive(yes)
     shutil.rmtree(fsc_dir)
     console.print("[green]Removed .fsc/[/green]")
     removed_dirs += 1
@@ -29,7 +35,7 @@ def deinit_command(
   else:
     console.print("[yellow].fsc/ not found, skipping[/yellow]")
 
-  for spec in sorted(root.rglob("*.fsc.md")):
+  for spec in sorted(root.rglob("*.py.fsc.md")):
     spec.unlink()
 
     try:

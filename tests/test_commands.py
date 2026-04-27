@@ -89,7 +89,7 @@ def test_deinit_removes_fsc_dir(tmp_path: Path, monkeypatch):
   runner.invoke(app, ["init", "-y"])
   assert (tmp_path / ".fsc").exists()
 
-  runner.invoke(app, ["deinit"])
+  runner.invoke(app, ["deinit", "-y"])
 
   assert not (tmp_path / ".fsc").exists()
 
@@ -101,7 +101,7 @@ def test_deinit_removes_specs(tmp_path: Path, monkeypatch):
   spec = tmp_path / "app.py.fsc.md"
   spec.write_text("stale")
 
-  runner.invoke(app, ["deinit"])
+  runner.invoke(app, ["deinit", "-y"])
 
   assert not spec.exists()
   assert not (tmp_path / ".fsc").exists()
@@ -110,7 +110,7 @@ def test_deinit_removes_specs(tmp_path: Path, monkeypatch):
 def test_deinit_idempotent(tmp_path: Path, monkeypatch):
   monkeypatch.chdir(tmp_path)
 
-  runner.invoke(app, ["deinit"])
-  result = runner.invoke(app, ["deinit"])
+  runner.invoke(app, ["deinit", "-y"])
+  result = runner.invoke(app, ["deinit", "-y"])
 
   assert result.exit_code == 0

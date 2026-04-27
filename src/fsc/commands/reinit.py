@@ -2,7 +2,6 @@ from pathlib import Path
 
 import typer
 
-from fsc.commands.deinit import deinit_command
 from fsc.commands.init import _do_init
 
 
@@ -11,7 +10,7 @@ def reinit_command(
     None, help="Target directory (default: current directory)"
   ),
   yes: bool = typer.Option(
-    False, "-y", "--yes", help="Skip confirmations, overwrite existing files"
+    False, "-y", "--yes", help="Skip confirmation prompts"
   ),
   extensions: list[str] | None = typer.Option(
     None, "--extensions", help="File extensions to include"
@@ -33,10 +32,7 @@ def reinit_command(
     None, "--force-per-file", help="Force per-file generation instead of batch"
   ),
 ) -> None:
-  """deinit + init: remove all and recreate .fsc/ from scratch."""
-
-  deinit_command(directory=directory)
-  print()
+  """Remove all artifacts and recreate .fsc/ from scratch."""
 
   cli_args = dict(
     extensions=extensions,
@@ -52,4 +48,4 @@ def reinit_command(
     force_per_file=force_per_file,
   )
 
-  _do_init(True, cli_args, directory)
+  _do_init(True, yes, cli_args, directory)
