@@ -245,7 +245,7 @@ batch_size = 50
 
 ### Prompt
 
-`fsc` sends a system prompt to the LLM that defines the specification format. Built-in prompts are versioned per language: `fsc_eng_5.md`, `fsc_ru_5.md`. The latest version is always used. Resolution order:
+`fsc` sends a system prompt to the LLM that defines the specification format. Built-in prompts are versioned per language: `fsc_en_5.md`, `fsc_ru_5.md`. The latest version is always used. Resolution order:
 
 1. `--prompt-file` CLI argument
 2. `.fsc/PROMPT.md` in project root
