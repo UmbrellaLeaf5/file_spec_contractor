@@ -22,6 +22,8 @@ def test_generate_missing_api_key(tmp_path: Path, monkeypatch):
 
   (tmp_path / "app.py").write_text("x = 1")
 
+  runner.invoke(app, ["init", "-y"])
+
   result = runner.invoke(app, ["generate", "--file", str(tmp_path / "app.py")])
 
   assert result.exit_code != 0

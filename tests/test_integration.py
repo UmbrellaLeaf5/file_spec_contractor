@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 
 import pytest
@@ -48,22 +49,23 @@ def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
   monkeypatch.chdir(tmp_path)
   monkeypatch.setenv("OPEN_ROUTER_API_KEY", api_key)
 
-  (tmp_path / "app.py").write_text(
-    'def greet(name: str) -> str:\n    return f"Hello, {name}!"\n'
-  )
+  src = tmp_path / "app.py"
+  src.write_text('def greet(name: str) -> str:\n    return f"Hello, {name}!"\n')
 
   runner.invoke(app, ["init", "-y"])
 
   first = runner.invoke(
     app,
-    ["generate", "--file", str(tmp_path / "app.py"), "--force-per-file"],
+    ["generate", "--file", str(src), "--force-per-file"],
   )
 
   assert first.exit_code == 0
 
+  time.sleep(0.1)
+
   second = runner.invoke(
     app,
-    ["generate", "--file", str(tmp_path / "app.py"), "--force-per-file"],
+    ["generate", "--file", str(src), "--force-per-file"],
   )
 
   assert second.exit_code == 0

@@ -33,8 +33,8 @@ def test_wrong_types_in_config(tmp_path: Path):
   fsc_dir.mkdir()
   (fsc_dir / "config.toml").write_text('[project]\nextensions = ".py"\n')
 
-  cfg = load_merged_config(tmp_path)
-  assert cfg.project.extensions == ".py"
+  with pytest.raises(ValueError, match="must be a list"):
+    load_merged_config(tmp_path)
 
 
 def test_extensions_without_dot(tmp_path: Path):
@@ -42,8 +42,8 @@ def test_extensions_without_dot(tmp_path: Path):
   fsc_dir.mkdir()
   (fsc_dir / "config.toml").write_text('[project]\nextensions = ["py", "kt"]\n')
 
-  cfg = load_merged_config(tmp_path)
-  assert cfg.project.extensions == ["py", "kt"]
+  with pytest.raises(ValueError, match="must be a string starting"):
+    load_merged_config(tmp_path)
 
 
 def test_negative_concurrency(tmp_path: Path):
@@ -51,8 +51,8 @@ def test_negative_concurrency(tmp_path: Path):
   fsc_dir.mkdir()
   (fsc_dir / "config.toml").write_text("[runtime]\nconcurrency = -5\n")
 
-  cfg = load_merged_config(tmp_path)
-  assert cfg.runtime.concurrency == -5  # noqa: PLR2004
+  with pytest.raises(ValueError, match="concurrency must be >= 1"):
+    load_merged_config(tmp_path)
 
 
 def test_unknown_provider_in_config(tmp_path: Path):
@@ -79,8 +79,8 @@ def test_negative_batch_size(tmp_path: Path):
   fsc_dir.mkdir()
   (fsc_dir / "config.toml").write_text("[output]\nbatch_size = -10\n")
 
-  cfg = load_merged_config(tmp_path)
-  assert cfg.output.batch_size == -10  # noqa: PLR2004
+  with pytest.raises(ValueError, match="batch_size must be a positive"):
+    load_merged_config(tmp_path)
 
 
 def test_batch_size_string(tmp_path: Path):
@@ -88,5 +88,5 @@ def test_batch_size_string(tmp_path: Path):
   fsc_dir.mkdir()
   (fsc_dir / "config.toml").write_text('[output]\nbatch_size = "abc"\n')
 
-  cfg = load_merged_config(tmp_path)
-  assert isinstance(cfg.output.batch_size, str)
+  with pytest.raises(ValueError, match="batch_size must be a positive"):
+    load_merged_config(tmp_path)

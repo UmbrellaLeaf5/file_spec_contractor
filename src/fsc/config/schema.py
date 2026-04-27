@@ -9,6 +9,14 @@ class ProjectConfig:
   )
   exclude_files: list[str] = field(default_factory=list)
 
+  def __post_init__(self):
+    if not isinstance(self.extensions, list):
+      raise ValueError(f"extensions must be a list, got {type(self.extensions).__name__}")
+
+    for ext in self.extensions:
+      if not isinstance(ext, str) or not ext.startswith("."):
+        raise ValueError(f"Extension '{ext}' must be a string starting with '.'")
+
 
 @dataclass
 class OutputConfig:
@@ -16,6 +24,15 @@ class OutputConfig:
   output_mode: str = "mirror"
   output_dir: str = ".fsc/specs"
   batch_size: int = 50
+
+  def __post_init__(self):
+    if self.output_mode not in ("mirror", "adjacent", "batch"):
+      raise ValueError(
+        f"output_mode must be one of: mirror, adjacent, batch, got '{self.output_mode}'"
+      )
+
+    if not isinstance(self.batch_size, int) or self.batch_size <= 0:
+      raise ValueError(f"batch_size must be a positive integer, got {self.batch_size}")
 
 
 @dataclass
@@ -32,6 +49,10 @@ class PromptConfig:
 class RuntimeConfig:
   concurrency: int = 1
   force_per_file: bool = False
+
+  def __post_init__(self):
+    if not isinstance(self.concurrency, int) or self.concurrency < 1:
+      raise ValueError(f"concurrency must be >= 1, got {self.concurrency}")
 
 
 @dataclass
