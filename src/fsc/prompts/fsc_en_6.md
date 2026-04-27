@@ -62,8 +62,8 @@ Brief one-line description.
 
 Methods:
 
-- `method_name(param: Type) -> ReturnType` — one-line description. **Notes:** (if any, brief).
-- `another_method() -> None` — one-line description. (inherited from ParentClass)
+- `method_name(param: Type) -> ReturnType` - one-line description. **Notes:** (if any, brief).
+- `another_method() -> None` - one-line description. (inherited from ParentClass)
 ```
 
 **For a top-level function:**

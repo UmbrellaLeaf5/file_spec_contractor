@@ -41,6 +41,9 @@ fsc --help
 # Set up configuration with defaults
 fsc init
 
+# Init in a specific directory
+fsc init /path/to/project
+
 # Init with custom settings
 fsc init --extensions .py --extensions .kt --language ru
 
@@ -62,7 +65,7 @@ fsc reinit --extensions .py --extensions .kt --language ru
 # Init with custom model
 fsc init --model deepseek-reasoner
 
-# Generate specifications for current directory (scan mode, batch by default)
+# Generate specifications for current directory (scan mode, bulk by default)
 fsc generate
 
 # Generate with a specific model
@@ -91,20 +94,20 @@ fsc --version
 
 | Mode                    | Flag                    | Behaviour                                                                       |
 | ----------------------- | ----------------------- | ------------------------------------------------------------------------------- |
-| **batch**               | _(default)_             | All files in a single LLM request. Consistent, cross-referenced specifications. |
+| **bulk**                | _(default)_             | All files in a single LLM request. Consistent, cross-referenced specifications. |
 | **per-file sequential** | `--force-per-file`      | Each file separately, one at a time.                                            |
 | **per-file parallel**   | `--force-per-file -c N` | N files simultaneously via thread pool. Fastest for large projects.             |
 
-If batch mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
+If bulk mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
 
 ### Commands
 
-| Command    | Description                                                                                                                  |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `init`     | Create `.fsc/` with config and prompt. Accepts all genration flags to customize initial config. Warns if already configured. |
-| `deinit`   | Remove `.fsc/` and all `*.fsc.md` files from the project.                                                                    |
-| `reinit`   | `deinit` + `init`. Accepts all the same flags as `init`.                                                                     |
-| `generate` | Generate `.fsc.md` specifications.                                                                                           |
+| Command        | Description                                                                                                                 |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `init [dir]`   | Create `.fsc/` with config and prompt. Accepts optional target directory and all config flags. Warns if already configured. |
+| `deinit [dir]` | Remove `.fsc/` and all `*.fsc.md` files from the project. Accepts optional target directory.                                |
+| `reinit [dir]` | `deinit` + `init`. Accepts all the same flags as `init`.                                                                    |
+| `generate`     | Generate `.fsc.md` specifications.                                                                                          |
 
 ### Options
 
@@ -126,7 +129,7 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--prompt-file`       | Custom system prompt file                                          |
 | `--language`          | Prompt language: `en` (default) or `ru` (`init`/`reinit` only)     |
 | `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`)                 |
-| `--force-per-file`    | Force per-file generation instead of batch                         |
+| `--force-per-file`    | Force per-file generation instead of bulk                          |
 | `-f`, `--force`       | Regenerate all specs, ignoring cache                               |
 | `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
 | `--verbose`           | Detailed output (`generate` only)                                  |
@@ -179,7 +182,7 @@ file = ".fsc/PROMPT.md"
 # Generation runtime settings
 [runtime]
 concurrency = 3            # parallel threads for per-file mode
-force_per_file = false     # skip batch mode, use per-file
+force_per_file = false     # skip bulk mode, use per-file
 ```
 
 ### API Key
@@ -253,6 +256,8 @@ fsc init --output-mode batch --batch-size 100
 fsc generate --output-mode batch --batch-size 50
 ```
 
+When output mode is changed, existing specs are automatically moved to the new location instead of being regenerated.
+
 ```toml
 # .fsc/config.toml
 [output]
@@ -274,9 +279,10 @@ If no prompt file is found, a warning is shown and the built-in prompt is used.
 ## How It Works
 
 1. Scans your project for files matching configured extensions
-2. For each file, sends the code with a system prompt to the LLM provider
-3. The LLM generates a structured `.fsc.md` specification
-4. Saves the specification - ready to be fed to any LLM agent
+2. Sends all files in a single request to the LLM (bulk mode, default) or one-by-one (per-file mode)
+3. The LLM generates structured `.fsc.md` specifications
+4. Saves the specifications - ready to be fed to any LLM agent
+5. On subsequent runs, skips unchanged files. If output mode changed, moves specs instead of regenerating.
 
 ## Specification Format
 
@@ -334,7 +340,7 @@ uv build
 - [x] DeepSeek API integration
 - [x] OpenRouter API integration (free `gpt-oss-120b` model)
 - [x] Multi-provider support with `--provider` flag
-- [x] Batch generation mode (all files in one request with fallback)
+- [x] Bulk generation mode (all files in one request with fallback)
 - [x] Parallel per-file generation (`--force-per-file -c N`)
 - [x] Spec caching with `--force` to regenerate
 - [x] Configuration file support (TOML) with Pydantic validation
@@ -346,6 +352,11 @@ uv build
 - [x] Installable CLI entry point (`fsc`)
 - [x] Graceful shutdown on Ctrl+C
 - [x] 63 tests (unit, integration, CLI)
+- [x] Spec auto-move on output mode change (no wasted regeneration)
+- [x] `fsc --version`
+- [x] `fsc init <dir>` - initialise in any directory
+- [x] CI pipeline with GitHub Actions
+- [ ] PyPI publish automation
 - [ ] `--update` flag for incremental regeneration
 - [ ] Rich progress bars for large projects
 - [ ] Local model support (Ollama, LM Studio)

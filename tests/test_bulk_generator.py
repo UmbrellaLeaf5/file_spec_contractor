@@ -1,4 +1,4 @@
-from fsc.spec.batch_generator import _build_batch_prompt, _parse_batch_response
+from fsc.spec.bulk_generator import _build_batch_prompt, _parse_batch_response
 
 
 def test_build_batch_prompt_empty():

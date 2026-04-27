@@ -1,3 +1,4 @@
+import shutil
 from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -6,11 +7,31 @@ from rich.console import Console
 
 from fsc.config.schema import FSCConfig
 from fsc.providers.base import BaseProvider
-from fsc.spec.batch_generator import generate_batch
-from fsc.utils.fs import is_spec_fresh, resolve_output_path, write_spec_atomic
+from fsc.spec.bulk_generator import generate_bulk
+from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
 
 console = Console()
+
+_OUTPUT_MODES = ("mirror", "adjacent", "batch")
+
+
+def _find_fresh_spec_in_any_mode(
+  src_path: Path, project_root: Path, cfg: FSCConfig
+) -> Path | None:
+  src_mtime = src_path.stat().st_mtime
+  original_mode = cfg.output.output_mode
+
+  for mode in _OUTPUT_MODES:
+    cfg.output.output_mode = mode
+    spec = resolve_output_path(src_path, project_root, cfg)
+
+    if spec.exists() and spec.stat().st_mtime >= src_mtime:
+      cfg.output.output_mode = original_mode
+      return spec
+
+  cfg.output.output_mode = original_mode
+  return None
 
 
 def _read_file_safe(path: Path) -> str:
@@ -87,11 +108,30 @@ def generate_for_files(
   skipped = 0
 
   for src_path in files:
-    if not force and is_spec_fresh(src_path, project_root, cfg):
-      rel_path = _resolve_rel(src_path, project_root).replace("\\", "/")
-      console.log(f"Skipping {rel_path} (spec is up to date)")
-      skipped += 1
-      continue
+    if not force:
+      current_spec = resolve_output_path(src_path, project_root, cfg)
+
+      if (
+        current_spec.exists() and current_spec.stat().st_mtime >= src_path.stat().st_mtime
+      ):
+        rel_path = _resolve_rel(src_path, project_root).replace("\\", "/")
+        console.log(f"Skipping {rel_path} (spec is up to date)")
+        skipped += 1
+
+        continue
+
+      moved = _find_fresh_spec_in_any_mode(src_path, project_root, cfg)
+
+      if moved and moved != current_spec:
+        current_spec.parent.mkdir(parents=True, exist_ok=True)
+
+        shutil.move(str(moved), str(current_spec))
+
+        rel_path = _resolve_rel(src_path, project_root).replace("\\", "/")
+        console.log(f"Moved spec for {rel_path} (output mode changed)")
+        skipped += 1
+
+        continue
 
     code = _read_file_safe(src_path)
     rel_path = _resolve_rel(src_path, project_root).replace("\\", "/")
@@ -113,16 +153,16 @@ def generate_for_files(
   index_map = {path: i for i, path in enumerate(sorted_paths)}
 
   if not force_per_file:
-    mode = "batch"
+    mode = "bulk"
 
     if file_count > 0:
       try:
-        results = generate_batch(
+        results = generate_bulk(
           file_data, prompt_template, provider, cfg, project_root, src_paths, dry_run
         )
 
       except KeyboardInterrupt:
-        console.print("\n[yellow]Batch generation interrupted.[/yellow]")
+        console.print("\n[yellow]Bulk generation interrupted.[/yellow]")
         return []
 
       if results:

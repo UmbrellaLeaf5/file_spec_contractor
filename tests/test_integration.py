@@ -37,7 +37,7 @@ def test_full_pipeline_dry_run(tmp_path: Path, monkeypatch):
   )
 
   assert "Found 1 files" in result.stdout
-  assert "batch" in result.stdout.lower()
+  assert "bulk" in result.stdout.lower()
 
 
 def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
@@ -109,7 +109,7 @@ def test_generate_help_shows_batch_mode(tmp_path: Path, monkeypatch):
   result = runner.invoke(app, ["generate", "--help"])
 
   assert result.exit_code == 0
-  assert "batch" in result.stdout.lower()
+  assert "bulk" in result.stdout.lower()
 
 
 def test_init_help_shows_examples(tmp_path: Path, monkeypatch):

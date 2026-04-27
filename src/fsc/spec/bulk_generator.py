@@ -43,7 +43,7 @@ def _parse_batch_response(response: str) -> dict[str, str]:
   return specs
 
 
-def generate_batch(
+def generate_bulk(
   files: dict[str, str],
   system_prompt: str,
   provider,
@@ -58,7 +58,7 @@ def generate_batch(
 
   if dry_run:
     console.print(
-      "[yellow]Batch mode is not compatible with --dry-run. "
+      "[yellow]Bulk mode is not compatible with --dry-run. "
       "Switching to per-file dry run.[/yellow]"
     )
     return []
@@ -66,7 +66,9 @@ def generate_batch(
   src_paths_norm = {k.replace("\\", "/"): v for k, v in src_paths.items()}
 
   count = len(files)
-  console.log(f"Generating specs for {count} files in batch mode ...")
+
+  console.log(f"Generating specs for {count} files in bulk mode ...")
+
 
   batch_prompt = _build_batch_prompt(files, cfg.output.language)
   response = provider.generate(system_prompt, batch_prompt)
@@ -84,7 +86,7 @@ def generate_batch(
 
     if src is None:
       console.print(
-        f"[yellow]Skipping unknown file from batch response: {rel_path}[/yellow]"
+        f"[yellow]Skipping unknown file from bulk response: {rel_path}[/yellow]"
       )
       continue
 

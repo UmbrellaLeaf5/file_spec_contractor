@@ -146,11 +146,11 @@ def generate_command(
     console.print("[yellow]No files found to process.[/yellow]")
     raise typer.Exit()
 
-  mode = "per-file" if cfg.runtime.force_per_file else "batch"
+  mode = "per-file" if cfg.runtime.force_per_file else "bulk"
 
   if dry_run and not cfg.runtime.force_per_file:
     console.print(
-      "[yellow]Batch mode is not compatible with --dry-run. "
+      "[yellow]Bulk mode is not compatible with --dry-run. "
       "Switching to per-file dry run.[/yellow]"
     )
     cfg.runtime.force_per_file = True

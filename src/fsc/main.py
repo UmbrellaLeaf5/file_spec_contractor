@@ -47,7 +47,7 @@ app.command(
   help=(
     "Generate compact .fsc.md specifications for project source files.\n\n"
     "Modes:\n"
-    "  batch (default) - all files in a single LLM request for consistent,\n"
+    "  bulk (default) - all files in a single LLM request for consistent,\n"
     "    cross-referenced specifications.\n"
     "  per-file (--force-per-file) - each file individually, sequential or\n"
     "    parallel (-c N).\n\n"
