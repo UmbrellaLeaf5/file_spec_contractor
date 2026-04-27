@@ -20,8 +20,6 @@ class OutputConfig:
 @dataclass
 class ApiConfig:
   provider: str = "openrouter"
-  deepseek_api_key: str = ""
-  openrouter_api_key: str = ""
 
 
 @dataclass

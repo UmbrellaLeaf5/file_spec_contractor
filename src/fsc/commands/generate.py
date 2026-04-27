@@ -36,6 +36,9 @@ def generate_command(
   force_per_file: bool = typer.Option(
     False, "--force-per-file", help="Force per-file generation instead of batch"
   ),
+  api_key: str | None = typer.Option(
+    None, "--api-key", help="API key for the selected provider"
+  ),
   force: bool = typer.Option(
     False, "-f", "--force", help="Regenerate all specs, ignoring cache"
   ),
@@ -73,40 +76,30 @@ def generate_command(
   dotenv = load_dotenv(project_root)
 
   if provider_name == "deepseek":
-    api_key = (
-      os.environ.get("DEEPSEEK_API_KEY")
-      or cfg.api.deepseek_api_key
-      or dotenv.get("DEEPSEEK_API_KEY", "")
-    )
+    env_key = os.environ.get("DEEPSEEK_API_KEY", "")
+    resolved = api_key or env_key or dotenv.get("DEEPSEEK_API_KEY", "")
 
-    if not api_key:
+    if not resolved:
       console.print(
         "[red]DeepSeek API key not found. "
-        "Set DEEPSEEK_API_KEY, add api.deepseek_api_key to config, "
-        "or create .env with DEEPSEEK_API_KEY=...[/red]"
+        "Use --api-key, set DEEPSEEK_API_KEY, or add to .env[/red]"
       )
-
       raise typer.Exit(code=2)
 
-    provider_client = DeepSeekProvider(api_key=api_key)
+    provider_client = DeepSeekProvider(api_key=resolved)
 
   elif provider_name == "openrouter":
-    api_key = (
-      os.environ.get("OPEN_ROUTER_API_KEY")
-      or cfg.api.openrouter_api_key
-      or dotenv.get("OPEN_ROUTER_API_KEY", "")
-    )
+    env_key = os.environ.get("OPEN_ROUTER_API_KEY", "")
+    resolved = api_key or env_key or dotenv.get("OPEN_ROUTER_API_KEY", "")
 
-    if not api_key:
+    if not resolved:
       console.print(
         "[red]OpenRouter API key not found. "
-        "Set OPEN_ROUTER_API_KEY, add api.openrouter_api_key to config, "
-        "or create .env with OPEN_ROUTER_API_KEY=...[/red]"
+        "Use --api-key, set OPEN_ROUTER_API_KEY, or add to .env[/red]"
       )
-
       raise typer.Exit(code=2)
 
-    provider_client = OpenRouterProvider(api_key=api_key)
+    provider_client = OpenRouterProvider(api_key=resolved)
 
   else:
     console.print(f"[red]Unknown provider: {provider_name}[/red]")

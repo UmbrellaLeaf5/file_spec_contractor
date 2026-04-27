@@ -39,8 +39,10 @@ def _do_init(yes: bool, cli_args: dict) -> None:
     console.print("[yellow].fsc/PROMPT.md already exists, skipping[/yellow]")
 
   console.print("\n[bold]Done![/bold] Next steps:")
-  console.print("  1. Set your API key:")
+  console.print("  1. Set your API key (pick one):")
   console.print("     export OPEN_ROUTER_API_KEY=sk-or-v1-...")
+  console.print("     or use --api-key flag: fsc generate --api-key sk-or-v1-...")
+  console.print("     or create .env file with OPEN_ROUTER_API_KEY=...")
   console.print("  2. Generate specifications:")
   console.print("     fsc generate")
   console.print("  3. Or preview first:")

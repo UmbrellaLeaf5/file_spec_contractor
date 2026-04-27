@@ -114,8 +114,9 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--extensions`        | File extensions to include (default: `.py`)                        |
 | `--exclude-dirs`      | Directories to skip                                                |
 | `--exclude-files`     | File patterns to skip                                              |
-| `--provider`          | LLM provider: `openrouter` (default) or `deepseek`                 |
-| `--output-mode`       | `mirror` (default) or `adjacent`                                   |
+| `--provider` | LLM provider: `openrouter` (default) or `deepseek` |
+| `--api-key` | API key for the selected provider |
+| `--output-mode` | `mirror` (default) or `adjacent` |
 | `--output-dir`        | Output directory for mirror mode (default: `.fsc/specs`)           |
 | `--prompt-file`       | Custom system prompt file                                          |
 | `--language`          | Output language: `en` (default) or `ru`                            |
@@ -158,11 +159,9 @@ language = "en"          # "en" or "ru"
 output_mode = "mirror"   # "mirror" or "adjacent"
 output_dir = ".fsc/specs"
 
-# LLM provider and API keys
+# LLM provider
 [api]
 provider = "openrouter"        # "openrouter" or "deepseek"
-deepseek_api_key = ""          # for DeepSeek provider
-openrouter_api_key = ""        # for OpenRouter provider
 
 # Custom system prompt file (relative to project root)
 [prompt]
@@ -176,38 +175,31 @@ force_per_file = false     # skip batch mode, use per-file
 
 ### API Key
 
-API keys are resolved in this order:
+API keys are **never stored in config files**. Three ways to provide them (in priority order):
 
-1. **Environment variable** (highest priority)
-2. **`.fsc/config.toml`** or `~/.config/fsc/config.toml`
-3. **`.env` file** in the project root (lowest priority)
+1. **CLI flag** — `--api-key` (highest priority)
+2. **Environment variable** — `OPEN_ROUTER_API_KEY` / `DEEPSEEK_API_KEY`
+3. **`.env` file** in project root (lowest priority)
 
 **OpenRouter** (default):
 
 ```bash
-# Option 1: environment variable
+# Option 1: CLI flag
+fsc generate --api-key sk-or-v1-...
+
+# Option 2: environment variable
 export OPEN_ROUTER_API_KEY=sk-or-v1-...
 
-# Option 2: .env file
+# Option 3: .env file
 echo "OPEN_ROUTER_API_KEY=sk-or-v1-..." > .env
-
-# Option 3: user config
-# ~/.config/fsc/config.toml
-[api]
-openrouter_api_key = "sk-or-v1-..."
 ```
 
 **DeepSeek** (alternative):
 
 ```bash
-export DEEPSEEK_API_KEY=sk-...
-# or via .env or config (see above)
-```
-
-```
-# .env.example
-OPEN_ROUTER_API_KEY=sk-or-v1-...
-DEEPSEEK_API_KEY=sk-...
+fsc generate --provider deepseek --api-key sk-...
+# or: export DEEPSEEK_API_KEY=sk-...
+# or: echo "DEEPSEEK_API_KEY=sk-..." > .env
 ```
 
 ### Providers
