@@ -7,6 +7,7 @@ from rich.console import Console
 from fsc.config.loader import apply_cli_overrides
 from fsc.config.schema import FSCConfig
 from fsc.prompt_loader import builtin_prompt_text
+from fsc.utils.fs import find_spec_files
 
 
 console = Console(log_path=False)
@@ -18,7 +19,7 @@ def _count_fsc_artifacts(root: Path) -> int:
   if (root / ".fsc").exists():
     count += 1
 
-  count += len(list(root.rglob("*.fsc.md")))
+  count += len(find_spec_files(root))
 
   return count
 
@@ -31,7 +32,7 @@ def _remove_fsc_artifacts(root: Path) -> int:
     shutil.rmtree(fsc_dir)
     removed += 1
 
-  for spec in sorted(root.rglob("*.fsc.md")):
+  for spec in find_spec_files(root):
     spec.unlink()
     removed += 1
 

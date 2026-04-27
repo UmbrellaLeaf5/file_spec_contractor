@@ -59,8 +59,11 @@ fsc init --force -y
 # Remove all fsc artifacts (.fsc/ and *.fsc.md files)
 fsc deinit
 
+# Remove only generated specs, keep config
+fsc clean
+
 # Skip confirmation
-fsc deinit -y
+fsc clean -y
 
 # Recreate configuration from scratch (deinit + init)
 fsc reinit
@@ -111,6 +114,7 @@ If bulk mode fails to produce parsable output, `fsc` automatically falls back to
 | Command        | Description                                                                                                                            |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `init [dir]`   | Create `.fsc/` with config and prompt. Accepts optional target directory and all config flags. Use `--force` to recreate from scratch. |
+| `clean [dir]`  | Remove `*.fsc.md` files, keep `.fsc/` configuration.                                                                                   |
 | `deinit [dir]` | Remove `.fsc/` and all `*.fsc.md` files. Prompts for confirmation unless `-y`.                                                         |
 | `reinit [dir]` | `init --force` equivalent. Removes all artifacts, then creates fresh `.fsc/`. Prompts for confirmation unless `-y`.                    |
 | `generate`     | Generate `*.fsc.md` specifications.                                                                                                    |

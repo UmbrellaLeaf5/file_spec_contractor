@@ -3,6 +3,7 @@ import importlib.metadata
 import typer
 from rich.console import Console
 
+from fsc.commands.clean import clean_command
 from fsc.commands.deinit import deinit_command
 from fsc.commands.generate import generate_command
 from fsc.commands.init import init_command
@@ -84,6 +85,18 @@ app.command(
     "  fsc init --provider deepseek"
   ),
 )(init_command)
+
+app.command(
+  name="clean",
+  help=(
+    "Remove all generated *.fsc.md files, keep .fsc/ configuration.\n\n"
+    "Shows the list of files to be removed and asks for confirmation.\n"
+    "Use -y to skip the prompt.\n\n"
+    "Examples:\n"
+    "  fsc clean\n"
+    "  fsc clean -y"
+  ),
+)(clean_command)
 
 app.command(
   name="deinit",

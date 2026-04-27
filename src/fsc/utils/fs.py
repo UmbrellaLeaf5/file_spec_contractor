@@ -85,3 +85,7 @@ def is_spec_fresh(src_path: Path, project_root: Path, cfg: FSCConfig) -> bool:
     return False
 
   return spec_path.stat().st_mtime >= src_path.stat().st_mtime
+
+
+def find_spec_files(root: Path) -> list[Path]:
+  return sorted(root.rglob("*.fsc.md"))
