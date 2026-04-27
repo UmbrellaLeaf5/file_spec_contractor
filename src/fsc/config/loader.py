@@ -17,8 +17,9 @@ DEFAULTS: dict = {
     "output_dir": ".fsc/specs",
   },
   "api": {
-    "provider": "deepseek",
+    "provider": "openrouter",
     "deepseek_api_key": "",
+    "openrouter_api_key": "",
   },
   "prompt": {"file": ".fsc/PROMPT.md"},
   "runtime": {"concurrency": 1, "force_per_file": False},

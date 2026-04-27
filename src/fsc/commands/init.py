@@ -39,7 +39,7 @@ def init_command(
 
   console.print("\n[bold]Done![/bold] Next steps:")
   console.print("  1. Set your API key:")
-  console.print("     export DEEPSEEK_API_KEY=sk-...")
+  console.print("     export OPEN_ROUTER_API_KEY=sk-or-v1-...")
   console.print("  2. Generate specifications:")
   console.print("     fsc generate")
   console.print("  3. Or preview first:")

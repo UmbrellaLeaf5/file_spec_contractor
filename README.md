@@ -77,30 +77,30 @@ fsc generate --language ru
 
 ### Generation Modes
 
-| Mode | Flag | Behaviour |
-|------|------|-----------|
-| **batch** | *(default)* | All files in a single LLM request. Consistent, cross-referenced specifications. |
-| **per-file sequential** | `--force-per-file` | Each file separately, one at a time. |
-| **per-file parallel** | `--force-per-file -c N` | N files simultaneously via thread pool. Fastest for large projects. |
+| Mode                    | Flag                    | Behaviour                                                                       |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| **batch**               | _(default)_             | All files in a single LLM request. Consistent, cross-referenced specifications. |
+| **per-file sequential** | `--force-per-file`      | Each file separately, one at a time.                                            |
+| **per-file parallel**   | `--force-per-file -c N` | N files simultaneously via thread pool. Fastest for large projects.             |
 
 If batch mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--file` | Specific files to generate specs for (repeatable) |
-| `--extensions` | File extensions to include (default: `.py`) |
-| `--exclude-dirs` | Directories to skip |
-| `--exclude-files` | File patterns to skip |
-| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`) |
-| `--force-per-file` | Force per-file generation instead of batch |
-| `--output-mode` | `mirror` (default) or `adjacent` |
-| `--output-dir` | Output directory for mirror mode (default: `.fsc/specs`) |
-| `--prompt-file` | Custom system prompt file |
-| `--language` | Output language: `en` (default) or `ru` |
-| `--dry-run` | Preview without writing files |
-| `--verbose` | Detailed output |
+| Option                | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `--file`              | Specific files to generate specs for (repeatable)        |
+| `--extensions`        | File extensions to include (default: `.py`)              |
+| `--exclude-dirs`      | Directories to skip                                      |
+| `--exclude-files`     | File patterns to skip                                    |
+| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`)       |
+| `--force-per-file`    | Force per-file generation instead of batch               |
+| `--output-mode`       | `mirror` (default) or `adjacent`                         |
+| `--output-dir`        | Output directory for mirror mode (default: `.fsc/specs`) |
+| `--prompt-file`       | Custom system prompt file                                |
+| `--language`          | Output language: `en` (default) or `ru`                  |
+| `--dry-run`           | Preview without writing files                            |
+| `--verbose`           | Detailed output                                          |
 
 ## Configuration
 
@@ -124,41 +124,77 @@ This creates:
 ### Example `.fsc/config.toml`
 
 ```toml
+# Which files to scan and which to skip
 [project]
 extensions = [".py", ".kt"]
 exclude_dirs = [".venv", "venv", ".git", "__pycache__", "tests"]
 exclude_files = ["setup.py", "conftest.py"]
 
+# Output language and mode
 [output]
-language = "en"
-output_mode = "mirror"
+language = "en"          # "en" or "ru"
+output_mode = "mirror"   # "mirror" or "adjacent"
 output_dir = ".fsc/specs"
 
+# LLM provider and API keys
 [api]
-provider = "deepseek"
-deepseek_api_key = ""
+provider = "openrouter"        # "openrouter" or "deepseek"
+deepseek_api_key = ""          # for DeepSeek provider
+openrouter_api_key = ""        # for OpenRouter provider
 
+# Custom system prompt file (relative to project root)
+[prompt]
+file = ".fsc/PROMPT.md"
+
+# Generation runtime settings
 [runtime]
-concurrency = 1
-force_per_file = false
+concurrency = 1            # parallel threads for per-file mode
+force_per_file = false     # skip batch mode, use per-file
 ```
 
 ### API Key
 
-Set your DeepSeek API key via environment variable:
+**OpenRouter** (default):
+
+```bash
+export OPEN_ROUTER_API_KEY=sk-or-v1-...
+```
+
+Or in `~/.config/fsc/config.toml`:
+
+```toml
+[api]
+openrouter_api_key = "sk-or-v1-..."
+```
+
+**DeepSeek** (alternative):
 
 ```bash
 export DEEPSEEK_API_KEY=sk-...
 ```
 
-Or add it to `~/.config/fsc/config.toml`:
+Or in config:
 
 ```toml
 [api]
+provider = "deepseek"
 deepseek_api_key = "sk-..."
 ```
 
-The environment variable takes priority over the config file.
+Environment variables always take priority over config files.
+
+### Providers
+
+| Provider                 | Model                      | Free | Env var               |
+| ------------------------ | -------------------------- | ---- | --------------------- |
+| **OpenRouter** (default) | `openai/gpt-oss-120b:free` | yes  | `OPEN_ROUTER_API_KEY` |
+| DeepSeek                 | `deepseek-chat`            | yes  | `DEEPSEEK_API_KEY`    |
+
+Switch provider via config or CLI:
+
+```bash
+fsc generate --provider deepseek
+```
 
 ### Output Modes
 
@@ -230,13 +266,16 @@ uv run fsc --help
 
 - [x] Core CLI with `init` and `generate` commands
 - [x] DeepSeek API integration
+- [x] OpenRouter API integration (free model)
+- [x] Multi-provider support with `--provider` flag
+- [x] Batch generation mode (all files in one request)
+- [x] Parallel per-file generation (`--force-per-file -c N`)
 - [x] Configuration file support (TOML)
 - [x] Dual output modes (`adjacent` / `mirror`)
 - [x] Prompt resolution (project file → built-in fallback)
 - [x] Multi-language prompt support (en, ru)
 - [x] Installable CLI entry point (`fsc`)
-- [ ] Concurrency with progress display (`rich`)
 - [ ] `--update` flag for incremental regeneration
-- [ ] Multi-provider support (Mistral, GigaChat, etc.)
+- [ ] Rich progress bars for large projects
 - [ ] Local model support (Ollama, LM Studio)
 - [ ] VS Code extension (generate specs from context menu / command palette)

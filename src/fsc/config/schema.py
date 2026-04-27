@@ -19,8 +19,9 @@ class OutputConfig:
 
 @dataclass
 class ApiConfig:
-  provider: str = "deepseek"
+  provider: str = "openrouter"
   deepseek_api_key: str = ""
+  openrouter_api_key: str = ""
 
 
 @dataclass
@@ -66,6 +67,12 @@ class FscConfig:
         if isinstance(value, list):
           items = ", ".join(f'"{v}"' for v in value)
           parts.append(f"{key} = [{items}]")
+
+        elif isinstance(value, bool):
+          parts.append(f"{key} = {'true' if value else 'false'}")
+
+        elif isinstance(value, int):
+          parts.append(f"{key} = {value}")
 
         else:
           parts.append(f'{key} = "{value}"')

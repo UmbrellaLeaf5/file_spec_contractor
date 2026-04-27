@@ -7,7 +7,9 @@ from rich.console import Console
 from fsc.config.loader import apply_cli_overrides, load_merged_config
 from fsc.prompt_loader import load_prompt, resolve_prompt_path
 from fsc.providers.deepseek import DeepSeekProvider
+from fsc.providers.openrouter import OpenRouterProvider
 from fsc.spec.generator import generate_for_files
+from fsc.utils.env import load_dotenv
 from fsc.utils.fs import scan_files
 
 
@@ -64,17 +66,48 @@ def generate_command(
   prompt_path = resolve_prompt_path(project_root, cfg, cli_prompt=cfg.prompt.file)
   prompt_text = load_prompt(prompt_path, cfg.output.language)
 
-  api_key = os.environ.get("DEEPSEEK_API_KEY") or cfg.api.deepseek_api_key
+  provider_name = cfg.api.provider
+  dotenv = load_dotenv(project_root)
 
-  if not api_key:
-    console.print(
-      "[red]DeepSeek API key not found. "
-      "Set DEEPSEEK_API_KEY or add api.deepseek_api_key to config.[/red]"
+  if provider_name == "deepseek":
+    api_key = (
+      os.environ.get("DEEPSEEK_API_KEY")
+      or cfg.api.deepseek_api_key
+      or dotenv.get("DEEPSEEK_API_KEY", "")
     )
 
-    raise typer.Exit(code=2)
+    if not api_key:
+      console.print(
+        "[red]DeepSeek API key not found. "
+        "Set DEEPSEEK_API_KEY, add api.deepseek_api_key to config, "
+        "or create .env with DEEPSEEK_API_KEY=...[/red]"
+      )
 
-  provider_client = DeepSeekProvider(api_key=api_key)
+      raise typer.Exit(code=2)
+
+    provider_client = DeepSeekProvider(api_key=api_key)
+
+  elif provider_name == "openrouter":
+    api_key = (
+      os.environ.get("OPEN_ROUTER_API_KEY")
+      or cfg.api.openrouter_api_key
+      or dotenv.get("OPEN_ROUTER_API_KEY", "")
+    )
+
+    if not api_key:
+      console.print(
+        "[red]OpenRouter API key not found. "
+        "Set OPEN_ROUTER_API_KEY, add api.openrouter_api_key to config, "
+        "or create .env with OPEN_ROUTER_API_KEY=...[/red]"
+      )
+
+      raise typer.Exit(code=2)
+
+    provider_client = OpenRouterProvider(api_key=api_key)
+
+  else:
+    console.print(f"[red]Unknown provider: {provider_name}[/red]")
+    raise typer.Exit(code=2)
 
   if files:
     targets = list(files)
