@@ -73,10 +73,15 @@ def generate_for_files(
   cfg: FSCConfig,
   project_root: Path,
   dry_run: bool = False,
-  concurrency: int = 3,
-  force_per_file: bool = False,
+  concurrency: int | None = None,
+  force_per_file: bool | None = None,
   force: bool = False,
 ) -> list[Path]:
+  if concurrency is None:
+    concurrency = cfg.runtime.concurrency
+
+  if force_per_file is None:
+    force_per_file = cfg.runtime.force_per_file
   file_data: dict[str, str] = {}
   src_paths: dict[str, Path] = {}
   skipped = 0

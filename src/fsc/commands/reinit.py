@@ -26,11 +26,11 @@ def reinit_command(
   output_dir: Path | None = typer.Option(None, "--output-dir"),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   language: str | None = typer.Option(None, "--language"),
-  concurrency: int = typer.Option(
-    3, "-c", "--concurrency", help="Parallel requests for per-file mode"
+  concurrency: int | None = typer.Option(
+    None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
   ),
-  force_per_file: bool = typer.Option(
-    False, "--force-per-file", help="Force per-file generation instead of batch"
+  force_per_file: bool | None = typer.Option(
+    None, "--force-per-file", help="Force per-file generation instead of batch"
   ),
 ) -> None:
   """deinit + init: remove all and recreate .fsc/ from scratch."""

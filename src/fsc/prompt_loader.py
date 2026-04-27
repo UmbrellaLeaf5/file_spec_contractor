@@ -36,7 +36,9 @@ def resolve_prompt_path(
   return None
 
 
-def load_prompt(path: Path | None, language: str = "en") -> str:
+def load_prompt(path: Path | None, language: str | None = None) -> str:
+  if language is None:
+    language = FSCConfig().output.language
   if path and path.exists():
     return path.read_text(encoding="utf-8")
 
@@ -48,8 +50,11 @@ def load_prompt(path: Path | None, language: str = "en") -> str:
   return builtin_prompt_text(language)
 
 
-def builtin_prompt_text(language: str = "en") -> str:
+def builtin_prompt_text(language: str | None = None) -> str:
   """Возвращает встроенный промпт для указанного языка (последнюю версию)."""
+
+  if language is None:
+    language = FSCConfig().output.language
 
   try:
     resources = importlib.resources.files("fsc.prompts")

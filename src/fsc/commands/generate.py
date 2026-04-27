@@ -35,11 +35,11 @@ def generate_command(
     None, "--batch-size", help="Files per batch folder (batch output mode)"
   ),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
-  concurrency: int = typer.Option(
-    3, "-c", "--concurrency", help="Parallel requests for per-file mode"
+  concurrency: int | None = typer.Option(
+    None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
   ),
-  force_per_file: bool = typer.Option(
-    False, "--force-per-file", help="Force per-file generation instead of batch"
+  force_per_file: bool | None = typer.Option(
+    None, "--force-per-file", help="Force per-file generation instead of batch"
   ),
   api_key: str | None = typer.Option(
     None, "--api-key", help="API key for the selected provider"
