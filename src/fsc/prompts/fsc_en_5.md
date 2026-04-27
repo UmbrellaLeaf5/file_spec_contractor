@@ -36,7 +36,7 @@ List what this class/function depends on. Group as:
 - **External**: third-party libraries / packages / dependencies (what they are used for)
 - **Internal**: project modules (role: parent class, used type, utility, interface)
 
-Format: `path/to/module.extension` — role in this file.
+Format: `path/to/module.extension` - role in this file.
 
 If there are no dependencies, write: `[none]`.
 
@@ -44,7 +44,7 @@ If there are no dependencies, write: `[none]`.
 
 ## Public API
 
-List **all public methods and properties** available on this class (including inherited ones). If this is a file with functions — list all public functions.
+List **all public methods and properties** available on this class (including inherited ones). If this is a file with functions - list all public functions.
 
 **CRITICALLY IMPORTANT:**
 
@@ -62,7 +62,7 @@ List **all public methods and properties** available on this class (including in
   def method3(): ...
   ```
 
-- **Inherited methods require the SAME FULL DESCRIPTION** as own methods. The only difference — add `(inherited from ParentClass)` after the signature or at the end of the description.
+- **Inherited methods require the SAME FULL DESCRIPTION** as own methods. The only difference - add `(inherited from ParentClass)` after the signature or at the end of the description.
 
 **For EACH public element, specify:**
 
@@ -121,13 +121,13 @@ List **all public methods and properties** available on this class (including in
 
 3. **Important notes** (if any): side effects, what it does NOT do, non-obvious behavior, possible exceptions (`Raises`/`throws`).
    - If the note is short (a word or phrase), it may be included in the description.
-   - If there are multiple notes or they require explanation — put them in a separate `**Important notes:**` block.
+   - If there are multiple notes or they require explanation - put them in a separate `**Important notes:**` block.
    - If there are no notes, write: `[no notes]`.
 
 4. **Source** (if the method is inherited or overridden):
-   - `(inherited from ParentClass)` — if the method has not been overridden.
-   - `(overridden from ParentClass)` — if the method is overridden in the current class.
-   - `(implements InterfaceName)` — if the method implements an interface.
+   - `(inherited from ParentClass)` - if the method has not been overridden.
+   - `(overridden from ParentClass)` - if the method is overridden in the current class.
+   - `(implements InterfaceName)` - if the method implements an interface.
 
 **Do NOT include** private methods in this list. Signs of private visibility depend on the language:
 
@@ -146,7 +146,7 @@ If there are no public methods/functions, write: `[none]`.
 
 Non-obvious implementation details: sentinels (special marker values), parameter forwarding, global state, unconventional patterns, decorators/annotations, threads/goroutines, async/coroutines, RAII, smart pointers, lifetimes (Rust).
 
-If a private method is critically important for understanding the architecture — briefly mention it here (without signature or details).
+If a private method is critically important for understanding the architecture - briefly mention it here (without signature or details).
 
 If there are no such details, write: `[none]`.
 
@@ -181,10 +181,10 @@ If the file contains no code, write: `[not applicable]`.
 
 - **Analyze the ENTIRE codebase.** To understand the full list of a class's public methods, trace the entire chain of its parents and interfaces. Do not limit yourself to methods defined in the file itself.
 - **Do NOT include private methods in Public API.** Even if they are overridden. Their place is in `Implementation Notes`, if they are important for the architecture.
-- **Declarative signatures.** In the code block, write `...` (or `pass`, or `{}`, or `;` — depending on the language) instead of the body. Preserve all type annotations and default values.
+- **Declarative signatures.** In the code block, write `...` (or `pass`, or `{}`, or `;` - depending on the language) instead of the body. Preserve all type annotations and default values.
 - **Pay attention to style.** In the `Code Style` section, reflect not only general language conventions but also project-specific techniques (e.g., long separators, special marker comments).
-- **Do not skip methods.** Even if there are many — describe each one individually. This is fundamental for FileSpecContractor.
-- **All sections are mandatory.** If a section is empty — write `[none]`. Do not skip a section entirely.
+- **Do not skip methods.** Even if there are many - describe each one individually. This is fundamental for FileSpecContractor.
+- **All sections are mandatory.** If a section is empty - write `[none]`. Do not skip a section entirely.
 - Be concise. A specification is a map for an LLM agent, not full documentation.
 - Specification language: **English** (unless the project's documentation is in another language). Keep class, method, and file names as in the original code.
 

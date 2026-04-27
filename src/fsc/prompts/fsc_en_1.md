@@ -22,7 +22,7 @@ List what this file depends on. You may group:
 - External libraries / packages
 - Internal project modules
 
-Format is flexible — clarity is the priority.
+Format is flexible - clarity is the priority.
 
 ## Methods
 
@@ -34,7 +34,7 @@ For each, specify:
 - What it does (briefly)
 - Important notes (if any): side effects, what it does NOT do, non-obvious behavior
 
-If there are no public methods/functions — write "None".
+If there are no public methods/functions - write "None".
 
 ## Implementation Notes
 
@@ -51,10 +51,10 @@ Conventions used in this file: formatting, naming, comment structure, typing app
 
 ## Rules
 
-- Analyze the ENTIRE codebase to understand relationships. If a class inherits — include public methods from parent classes (but do not dive into their implementation).
+- Analyze the ENTIRE codebase to understand relationships. If a class inherits - include public methods from parent classes (but do not dive into their implementation).
 - Do NOT include private methods (e.g., starting with `_`, marked `private`, etc.).
 - You may create subsections inside sections using `###` if it improves readability. Not required.
-- If a section has nothing to report — leave it empty or write "[none]".
+- If a section has nothing to report - leave it empty or write "[none]".
 - Be concise. A specification is a map, not the source code.
 - Specification language: English. Keep method names, type names, and filenames as they appear in code.
 

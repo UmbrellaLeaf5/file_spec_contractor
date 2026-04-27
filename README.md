@@ -2,11 +2,11 @@
 
 > Token-saving contracts for your codebase.
 
-`fsc` is a command-line tool that generates descriptive specifications for your code files — compact "contracts" that help LLMs understand your project without burning through free-tier token limits.
+`fsc` is a command-line tool that generates descriptive specifications for your code files - compact "contracts" that help LLMs understand your project without burning through free-tier token limits.
 
 ## Why?
 
-Free LLM models have strict context limits. Feeding them your entire codebase is expensive and often impossible. `fsc` creates lightweight `.fsc.md` files that capture the **public API and critical implementation details** of each file — enough for an agent to work with, small enough to fit in context.
+Free LLM models have strict context limits. Feeding them your entire codebase is expensive and often impossible. `fsc` creates lightweight `.fsc.md` files that capture the **public API and critical implementation details** of each file - enough for an agent to work with, small enough to fit in context.
 
 Born from the frustration of trying to vibe-code on a student laptop.
 
@@ -43,6 +43,12 @@ fsc --help
 ```bash
 # Set up configuration in current directory
 fsc init
+
+# Remove all fsc artifacts (.fsc/ and *.fsc.md files)
+fsc deinit
+
+# Recreate configuration from scratch (deinit + init)
+fsc reinit
 
 # Generate specifications for current directory (scan mode)
 fsc generate
@@ -91,8 +97,8 @@ fsc init
 
 This creates:
 
-- `.fsc/config.toml` — project configuration
-- `.fsc/PROMPT.md` — custom system prompt (optional, built-in prompt is used as fallback)
+- `.fsc/config.toml` - project configuration
+- `.fsc/PROMPT.md` - custom system prompt (optional, built-in prompt is used as fallback)
 
 ### Example `.fsc/config.toml`
 
@@ -151,18 +157,18 @@ If no prompt file is found, a warning is shown and the built-in prompt is used.
 1. Scans your project for files matching configured extensions
 2. For each file, sends the code with a system prompt to the LLM provider
 3. The LLM generates a structured `.fsc.md` specification
-4. Saves the specification — ready to be fed to any LLM agent
+4. Saves the specification - ready to be fed to any LLM agent
 
 ## Specification Format
 
 Each generated spec follows this structure:
 
-- **Purpose** — what this file does
-- **Dependencies** — external libs and internal modules
-- **Public API** — all public methods with signatures and notes
-- **Implementation Notes** — sentinels, patterns, non-obvious details
-- **Handle with Care** — contracts that are easy to break
-- **Code Style** — conventions used in this file
+- **Purpose** - what this file does
+- **Dependencies** - external libs and internal modules
+- **Public API** - all public methods with signatures and notes
+- **Implementation Notes** - sentinels, patterns, non-obvious details
+- **Handle with Care** - contracts that are easy to break
+- **Code Style** - conventions used in this file
 
 ## Requirements
 

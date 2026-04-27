@@ -3,13 +3,14 @@ from pathlib import Path
 from rich.console import Console
 
 from fsc.config.schema import FscConfig
+from fsc.prompt_loader import builtin_prompt_text
 
 
 console = Console()
 
 
 def init_command() -> None:
-  """Создаёт .fsc/ с шаблонами config.toml и PROMPT.md."""
+  """Create .fsc/ with templated config.toml и PROMPT.md."""
 
   fsc_dir = Path.cwd() / ".fsc"
   fsc_dir.mkdir(exist_ok=True)
@@ -26,7 +27,7 @@ def init_command() -> None:
   prompt_path = fsc_dir / "PROMPT.md"
 
   if not prompt_path.exists():
-    prompt_path.write_text("")
+    prompt_path.write_text(builtin_prompt_text())
     console.print("[green]Created .fsc/PROMPT.md[/green]")
 
   else:
