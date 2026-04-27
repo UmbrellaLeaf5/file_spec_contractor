@@ -2,8 +2,6 @@
 
 > Token-saving contracts for your codebase.
 
-**⚠️ Note: This project is currently in active development and is not yet available for installation. This README describes the planned functionality.**
-
 `fsc` is a command-line tool that generates descriptive specifications for your code files — compact "contracts" that help LLMs understand your project without burning through free-tier token limits.
 
 ## Why?
@@ -14,39 +12,52 @@ Born from the frustration of trying to vibe-code on a student laptop.
 
 ## Installation
 
+### From source
+
 ```bash
-# Clone and install with uv
 git clone <repo-url>
 cd file_spec_contractor
 uv sync
 ```
 
-The package installs in editable mode. Run it with:
+After install, the `fsc` command becomes available in the project's virtual environment:
 
 ```bash
-uv run python -m fsc.main <command>
+uv run fsc --help
+```
+
+### Install as a global tool
+
+```bash
+uv tool install .
+```
+
+Now `fsc` is available system-wide:
+
+```bash
+fsc --help
 ```
 
 ## Usage
 
 ```bash
 # Set up configuration in current directory
-uv run python -m fsc.main init
+fsc init
 
 # Generate specifications for current directory (scan mode)
-uv run python -m fsc.main generate
+fsc generate
 
 # Generate for specific files
-uv run python -m fsc.main generate --file src/machine.py
+fsc generate --file src/machine.py
 
 # Generate with custom extensions
-uv run python -m fsc.main generate --extensions .py .kt
+fsc generate --extensions .py .kt
 
 # Preview what would be generated (no API calls, no files written)
-uv run python -m fsc.main generate --dry-run --verbose
+fsc generate --dry-run --verbose
 
 # Enable verbose output
-uv run python -m fsc.main generate --verbose
+fsc generate --verbose
 ```
 
 ### Options
@@ -74,10 +85,8 @@ uv run python -m fsc.main generate --verbose
 
 ### Creating config
 
-Run `fsc init` to create a template:
-
 ```bash
-uv run python -m fsc.main init
+fsc init
 ```
 
 This creates:
@@ -94,7 +103,6 @@ exclude_dirs = [".venv", "venv", ".git", "__pycache__", "tests"]
 exclude_files = ["setup.py", "conftest.py"]
 
 [output]
-# Output language for specifications ("en" or "ru")
 language = "en"
 output_mode = "mirror"
 output_dir = ".fsc/specs"
@@ -130,13 +138,13 @@ The environment variable takes priority over the config file.
 
 ### Prompt
 
-`fsc` sends a system prompt to the LLM that defines the specification format. Resolution order:
+`fsc` sends a system prompt to the LLM that defines the specification format. Built-in prompts are versioned per language: `fsc_eng_5.md`, `fsc_ru_5.md`. The latest version is always used. Resolution order:
 
 1. `--prompt-file` CLI argument
 2. `.fsc/PROMPT.md` in project root
 3. Built-in prompt from the package
 
-If none is found, a warning is shown and the built-in prompt is used.
+If no prompt file is found, a warning is shown and the built-in prompt is used.
 
 ## How It Works
 
@@ -158,7 +166,7 @@ Each generated spec follows this structure:
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.12+
 - [uv](https://docs.astral.sh/uv/) for dependency management
 - DeepSeek API key
 
@@ -174,14 +182,17 @@ Each generated spec follows this structure:
 ## Development
 
 ```bash
-# Install dependencies
-uv sync
+# Install dependencies (including dev)
+uv sync --dev
 
 # Run tests
 uv run python -m pytest tests/
 
 # Run specific test
 uv run python -m pytest tests/test_deepseek.py -v
+
+# Run CLI in dev
+uv run fsc --help
 ```
 
 ## Roadmap
@@ -191,6 +202,8 @@ uv run python -m pytest tests/test_deepseek.py -v
 - [x] Configuration file support (TOML)
 - [x] Dual output modes (`adjacent` / `mirror`)
 - [x] Prompt resolution (project file → built-in fallback)
+- [x] Multi-language prompt support (en, ru)
+- [x] Installable CLI entry point (`fsc`)
 - [ ] Concurrency with progress display (`rich`)
 - [ ] `--update` flag for incremental regeneration
 - [ ] Multi-provider support (Mistral, GigaChat, etc.)
