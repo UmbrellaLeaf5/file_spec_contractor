@@ -41,8 +41,14 @@ fsc --help
 ## Usage
 
 ```bash
-# Set up configuration in current directory
+# Set up configuration with defaults
 fsc init
+
+# Init with custom settings
+fsc init --extensions .py --extensions .kt --language ru
+
+# Init with a different provider
+fsc init --provider deepseek
 
 # Overwrite existing config
 fsc init --yes
@@ -52,6 +58,9 @@ fsc deinit
 
 # Recreate configuration from scratch (deinit + init)
 fsc reinit
+
+# Reinit with custom flags
+fsc reinit --extensions .py --extensions .kt --language ru
 
 # Generate specifications for current directory (scan mode, batch by default)
 fsc generate
@@ -85,22 +94,35 @@ fsc generate --language ru
 
 If batch mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
 
+### Commands
+
+| Command    | Description                                                                                                                  |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `init`     | Create `.fsc/` with config and prompt. Accepts all genration flags to customize initial config. Warns if already configured. |
+| `deinit`   | Remove `.fsc/` and all `*.fsc.md` files from the project.                                                                    |
+| `reinit`   | `deinit` + `init`. Accepts all the same flags as `init`.                                                                     |
+| `generate` | Generate `.fsc.md` specifications.                                                                                           |
+
 ### Options
 
-| Option                | Description                                              |
-| --------------------- | -------------------------------------------------------- |
-| `--file`              | Specific files to generate specs for (repeatable)        |
-| `--extensions`        | File extensions to include (default: `.py`)              |
-| `--exclude-dirs`      | Directories to skip                                      |
-| `--exclude-files`     | File patterns to skip                                    |
-| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`)       |
-| `--force-per-file`    | Force per-file generation instead of batch               |
-| `--output-mode`       | `mirror` (default) or `adjacent`                         |
-| `--output-dir`        | Output directory for mirror mode (default: `.fsc/specs`) |
-| `--prompt-file`       | Custom system prompt file                                |
-| `--language`          | Output language: `en` (default) or `ru`                  |
-| `--dry-run`           | Preview without writing files                            |
-| `--verbose`           | Detailed output                                          |
+All options below are available on `generate`, `init`, and `reinit` (except `--file`, `--dry-run`, `--verbose` which are `generate`-only).
+
+| Option                | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| `-y`, `--yes`         | Skip confirmations, overwrite existing files (`init`/`reinit`)     |
+| `--file`              | Specific files to generate specs for (`generate` only, repeatable) |
+| `--extensions`        | File extensions to include (default: `.py`)                        |
+| `--exclude-dirs`      | Directories to skip                                                |
+| `--exclude-files`     | File patterns to skip                                              |
+| `--provider`          | LLM provider: `openrouter` (default) or `deepseek`                 |
+| `--output-mode`       | `mirror` (default) or `adjacent`                                   |
+| `--output-dir`        | Output directory for mirror mode (default: `.fsc/specs`)           |
+| `--prompt-file`       | Custom system prompt file                                          |
+| `--language`          | Output language: `en` (default) or `ru`                            |
+| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`)                 |
+| `--force-per-file`    | Force per-file generation instead of batch                         |
+| `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
+| `--verbose`           | Detailed output (`generate` only)                                  |
 
 ## Configuration
 
@@ -154,15 +176,23 @@ force_per_file = false     # skip batch mode, use per-file
 
 ### API Key
 
+API keys are resolved in this order:
+
+1. **Environment variable** (highest priority)
+2. **`.fsc/config.toml`** or `~/.config/fsc/config.toml`
+3. **`.env` file** in the project root (lowest priority)
+
 **OpenRouter** (default):
 
 ```bash
+# Option 1: environment variable
 export OPEN_ROUTER_API_KEY=sk-or-v1-...
-```
 
-Or in `~/.config/fsc/config.toml`:
+# Option 2: .env file
+echo "OPEN_ROUTER_API_KEY=sk-or-v1-..." > .env
 
-```toml
+# Option 3: user config
+# ~/.config/fsc/config.toml
 [api]
 openrouter_api_key = "sk-or-v1-..."
 ```
@@ -171,17 +201,14 @@ openrouter_api_key = "sk-or-v1-..."
 
 ```bash
 export DEEPSEEK_API_KEY=sk-...
+# or via .env or config (see above)
 ```
 
-Or in config:
-
-```toml
-[api]
-provider = "deepseek"
-deepseek_api_key = "sk-..."
 ```
-
-Environment variables always take priority over config files.
+# .env.example
+OPEN_ROUTER_API_KEY=sk-or-v1-...
+DEEPSEEK_API_KEY=sk-...
+```
 
 ### Providers
 
@@ -235,16 +262,18 @@ Each generated spec follows this structure:
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) for dependency management
-- DeepSeek API key
+- OpenRouter or DeepSeek API key (see [API Key](#api-key))
+- `.env` file support via [python-dotenv](https://github.com/theskumar/python-dotenv)
 
 ## Tech Stack
 
-| Component | Library                                |
-| --------- | -------------------------------------- |
-| CLI       | [Typer](https://typer.tiangolo.com/)   |
-| Logging   | [Rich](https://rich.readthedocs.io/)   |
-| HTTP      | [httpx](https://www.python-httpx.org/) |
-| Testing   | [pytest](https://docs.pytest.org/)     |
+| Component | Library                                                     |
+| --------- | ----------------------------------------------------------- |
+| CLI       | [Typer](https://typer.tiangolo.com/)                        |
+| Logging   | [Rich](https://rich.readthedocs.io/)                        |
+| HTTP      | [httpx](https://www.python-httpx.org/)                      |
+| Config    | [python-dotenv](https://github.com/theskumar/python-dotenv) |
+| Testing   | [pytest](https://docs.pytest.org/)                          |
 
 ## Development
 
@@ -264,13 +293,15 @@ uv run fsc --help
 
 ## Roadmap
 
-- [x] Core CLI with `init` and `generate` commands
+- [x] Core CLI with `init`, `generate`, `deinit`, `reinit` commands
 - [x] DeepSeek API integration
-- [x] OpenRouter API integration (free model)
+- [x] OpenRouter API integration (free `gpt-oss-120b` model)
 - [x] Multi-provider support with `--provider` flag
 - [x] Batch generation mode (all files in one request)
 - [x] Parallel per-file generation (`--force-per-file -c N`)
 - [x] Configuration file support (TOML)
+- [x] `.env` file support for API keys (via python-dotenv)
+- [x] All config flags available on `init` and `reinit`
 - [x] Dual output modes (`adjacent` / `mirror`)
 - [x] Prompt resolution (project file → built-in fallback)
 - [x] Multi-language prompt support (en, ru)
