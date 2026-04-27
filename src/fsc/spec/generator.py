@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from fsc.config.schema import FscConfig
+from fsc.config.schema import FSCConfig
 from fsc.providers.base import BaseProvider
 from fsc.spec.batch_generator import generate_batch
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
@@ -37,7 +37,7 @@ def _process_one_file(
   language: str,
   system_prompt: str,
   provider: BaseProvider,
-  cfg: FscConfig,
+  cfg: FSCConfig,
   project_root: Path,
   dry_run: bool,
 ) -> Path | None:
@@ -56,7 +56,7 @@ def generate_for_files(
   files: Iterable[Path],
   prompt_template: str,
   provider: BaseProvider,
-  cfg: FscConfig,
+  cfg: FSCConfig,
   project_root: Path,
   dry_run: bool = False,
   concurrency: int = 1,
@@ -117,6 +117,7 @@ def generate_for_files(
           project_root,
           dry_run,
         )
+
         futures[future] = rel_path
 
       for future in as_completed(futures):

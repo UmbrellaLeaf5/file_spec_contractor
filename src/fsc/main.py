@@ -8,7 +8,7 @@ from fsc.commands.reinit import reinit_command
 
 app = typer.Typer(
   help="FileSpecContractor - token-saving contracts for your codebase.",
-  epilog="hhttps://github.com/UmbrellaLeaf5/file_spec_contractor",
+  epilog="https://github.com/UmbrellaLeaf5/file_spec_contractor",
 )
 
 app.command(
@@ -42,15 +42,38 @@ app.command(
     "Initialize FileSpecContractor in the current directory.\n\n"
     "Creates .fsc/config.toml with default settings and .fsc/PROMPT.md\n"
     "pre-populated with the latest built-in prompt.\n\n"
+    "All generate flags (--extensions, --language, --provider, etc.) can be\n"
+    "used to customize the initial configuration.\n\n"
     "After init, set your API key and run fsc generate.\n\n"
     "Examples:\n"
     "  fsc init\n"
-    "  fsc init --yes          # overwrite existing files"
+    "  fsc init --yes              # overwrite existing files\n"
+    "  fsc init --extensions .py .kt --language ru\n"
+    "  fsc init --provider deepseek"
   ),
 )(init_command)
 
-app.command(name="deinit")(deinit_command)
-app.command(name="reinit")(reinit_command)
+app.command(
+  name="deinit",
+  help=(
+    "Remove .fsc/ and all generated .fsc.md files from the project tree.\n\n"
+    "Examples:\n"
+    "  fsc deinit\n"
+    "  fsc deinit && fsc reinit  # clean start"
+  ),
+)(deinit_command)
+
+app.command(
+  name="reinit",
+  help=(
+    "deinit + init: remove all artifacts and recreate .fsc/ from scratch.\n\n"
+    "Accepts all the same flags as init to customize the new config.\n\n"
+    "Examples:\n"
+    "  fsc reinit\n"
+    "  fsc reinit --extensions .py .kt --language ru\n"
+    "  fsc reinit --provider deepseek"
+  ),
+)(reinit_command)
 
 
 def main() -> None:

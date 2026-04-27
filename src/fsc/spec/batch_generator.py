@@ -5,11 +5,10 @@ from rich.console import Console
 
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
+
 console = Console()
 
-_SPEC_MARKER = re.compile(
-  r"## SPEC:\s*(.+?)\s*\n(.*?)(?=\n## SPEC:|\Z)", re.DOTALL
-)
+_SPEC_MARKER = re.compile(r"## SPEC:\s*(.+?)\s*\n(.*?)(?=\n## SPEC:|\Z)", re.DOTALL)
 
 
 def _build_batch_prompt(files: dict[str, str], language: str) -> str:
@@ -69,7 +68,9 @@ def generate_batch(
     src = src_paths.get(rel_path)
 
     if src is None:
-      console.print(f"[yellow]Skipping unknown file from batch response: {rel_path}[/yellow]")
+      console.print(
+        f"[yellow]Skipping unknown file from batch response: {rel_path}[/yellow]"
+      )
       continue
 
     out_path = resolve_output_path(src, project_root, cfg)

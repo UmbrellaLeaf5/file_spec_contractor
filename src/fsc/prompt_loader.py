@@ -3,14 +3,14 @@ from pathlib import Path
 
 from rich.console import Console
 
-from fsc.config.schema import FscConfig
+from fsc.config.schema import FSCConfig
 
 
 console = Console()
 
 
 def resolve_prompt_path(
-  project_root: Path, cfg: FscConfig, cli_prompt: str | None = None
+  project_root: Path, cfg: FSCConfig, cli_prompt: str | None = None
 ) -> Path | None:
   if cli_prompt:
     p = Path(cli_prompt)

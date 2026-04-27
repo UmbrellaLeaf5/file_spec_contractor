@@ -2,7 +2,7 @@ import fnmatch
 import os
 from pathlib import Path
 
-from fsc.config.schema import FscConfig
+from fsc.config.schema import FSCConfig
 
 
 def scan_files(
@@ -35,7 +35,7 @@ def scan_files(
   return results
 
 
-def resolve_output_path(src_path: Path, project_root: Path, cfg: FscConfig) -> Path:
+def resolve_output_path(src_path: Path, project_root: Path, cfg: FSCConfig) -> Path:
   if cfg.output.output_mode == "adjacent":
     return src_path.with_name(src_path.stem + ".fsc.md")
 

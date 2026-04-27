@@ -2,7 +2,7 @@ from pathlib import Path
 
 import tomllib
 
-from fsc.config.schema import FscConfig
+from fsc.config.schema import FSCConfig
 
 
 DEFAULTS: dict = {
@@ -56,7 +56,7 @@ def deep_update(dst: dict, src: dict) -> dict:
   return dst
 
 
-def load_merged_config(project_root: Path) -> FscConfig:
+def load_merged_config(project_root: Path) -> FSCConfig:
   cfg = deep_update({}, DEFAULTS)
   user = load_user_config()
   project = load_project_config(project_root)
@@ -67,10 +67,10 @@ def load_merged_config(project_root: Path) -> FscConfig:
   if project:
     cfg = deep_update(cfg, project)
 
-  return FscConfig.from_dict(cfg)
+  return FSCConfig.from_dict(cfg)
 
 
-def apply_cli_overrides(cfg: FscConfig, cli_args: dict) -> FscConfig:
+def apply_cli_overrides(cfg: FSCConfig, cli_args: dict) -> FSCConfig:
   if cli_args.get("extensions"):
     cfg.project.extensions = cli_args["extensions"]
 

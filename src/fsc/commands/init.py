@@ -3,30 +3,31 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from fsc.config.schema import FscConfig
+from fsc.config.loader import apply_cli_overrides
+from fsc.config.schema import FSCConfig
 from fsc.prompt_loader import builtin_prompt_text
+
 
 console = Console()
 
 
-def init_command(
-  yes: bool = typer.Option(
-    False, "-y", "--yes", help="Skip confirmations, overwrite existing files"
-  ),
-) -> None:
-  """Create .fsc/ directory with template config and prompt."""
-
+def _do_init(yes: bool, cli_args: dict) -> None:
   fsc_dir = Path.cwd() / ".fsc"
-  fsc_dir.mkdir(exist_ok=True)
-
   config_path = fsc_dir / "config.toml"
 
-  if not config_path.exists() or yes:
-    config_path.write_text(FscConfig().to_toml())
-    console.print("[green]Created .fsc/config.toml[/green]")
+  if config_path.exists() and not yes:
+    console.print(
+      "[yellow]FileSpecContractor is already configured (.fsc/config.toml exists).\n"
+      "Use --yes to overwrite or fsc reinit to recreate.[/yellow]"
+    )
+    return
 
-  else:
-    console.print("[yellow].fsc/config.toml already exists, skipping[/yellow]")
+  fsc_dir.mkdir(exist_ok=True)
+
+  cfg = FSCConfig()
+  cfg = apply_cli_overrides(cfg, cli_args)
+  config_path.write_text(cfg.to_toml())
+  console.print("[green]Created .fsc/config.toml[/green]")
 
   prompt_path = fsc_dir / "PROMPT.md"
 
@@ -44,3 +45,42 @@ def init_command(
   console.print("     fsc generate")
   console.print("  3. Or preview first:")
   console.print("     fsc generate --dry-run")
+
+
+def init_command(
+  yes: bool = typer.Option(
+    False, "-y", "--yes", help="Skip confirmations, overwrite existing files"
+  ),
+  extensions: list[str] | None = typer.Option(
+    None, "--extensions", help="File extensions to include"
+  ),
+  exclude_dirs: list[str] | None = typer.Option(None, "--exclude-dirs"),
+  exclude_files: list[str] | None = typer.Option(None, "--exclude-files"),
+  provider: str | None = typer.Option(None, "--provider"),
+  output_mode: str | None = typer.Option(None, "--output-mode"),
+  output_dir: Path | None = typer.Option(None, "--output-dir"),
+  prompt_file: Path | None = typer.Option(None, "--prompt-file"),
+  language: str | None = typer.Option(None, "--language"),
+  concurrency: int = typer.Option(
+    1, "-c", "--concurrency", help="Parallel requests for per-file mode"
+  ),
+  force_per_file: bool = typer.Option(
+    False, "--force-per-file", help="Force per-file generation instead of batch"
+  ),
+) -> None:
+  """Create .fsc/ directory with template config and prompt."""
+
+  cli_args = dict(
+    extensions=extensions,
+    exclude_dirs=exclude_dirs,
+    exclude_files=exclude_files,
+    provider=provider,
+    output_mode=output_mode,
+    output_dir=str(output_dir) if output_dir else None,
+    prompt_file=str(prompt_file) if prompt_file else None,
+    language=language,
+    concurrency=concurrency,
+    force_per_file=force_per_file,
+  )
+
+  _do_init(yes, cli_args)

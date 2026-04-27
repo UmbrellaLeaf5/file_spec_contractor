@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from fsc.config.schema import FscConfig
+from fsc.config.schema import FSCConfig
 from fsc.prompt_loader import load_prompt
 from fsc.providers.openrouter import OpenRouterProvider
 from fsc.spec.generator import generate_for_files
@@ -35,7 +35,7 @@ def test_openrouter_generate_single_file(tmp_path: Path):
     "        return a + b\n"
   )
 
-  cfg = FscConfig()
+  cfg = FSCConfig()
   cfg.output.output_dir = str(tmp_path / ".fsc" / "specs")
   prompt_text = load_prompt(None, "en")
   provider = OpenRouterProvider(api_key=api_key)
@@ -70,7 +70,7 @@ def test_openrouter_generate_batch(tmp_path: Path):
   utils = tmp_path / "utils.py"
   utils.write_text("def add(a: int, b: int) -> int:\n    return a + b\n")
 
-  cfg = FscConfig()
+  cfg = FSCConfig()
   cfg.output.output_dir = str(tmp_path / ".fsc" / "specs")
   prompt_text = load_prompt(None, "en")
   provider = OpenRouterProvider(api_key=api_key)

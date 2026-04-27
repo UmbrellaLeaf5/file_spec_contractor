@@ -36,7 +36,7 @@ class RuntimeConfig:
 
 
 @dataclass
-class FscConfig:
+class FSCConfig:
   project: ProjectConfig = field(default_factory=ProjectConfig)
   output: OutputConfig = field(default_factory=OutputConfig)
   api: ApiConfig = field(default_factory=ApiConfig)
@@ -44,7 +44,7 @@ class FscConfig:
   runtime: RuntimeConfig = field(default_factory=RuntimeConfig)
 
   @classmethod
-  def from_dict(cls, data: dict) -> "FscConfig":
+  def from_dict(cls, data: dict) -> "FSCConfig":
     return cls(
       project=ProjectConfig(**data.get("project", {})),
       output=OutputConfig(**data.get("output", {})),
