@@ -56,6 +56,13 @@ def generate_batch(
     console.print("[yellow]Batch skipped: no valid source paths.[/yellow]")
     return []
 
+  if dry_run:
+    console.print(
+      "[yellow]Batch mode is not compatible with --dry-run. "
+      "Switching to per-file dry run.[/yellow]"
+    )
+    return []
+
   src_paths_norm = {k.replace("\\", "/"): v for k, v in src_paths.items()}
 
   count = len(files)

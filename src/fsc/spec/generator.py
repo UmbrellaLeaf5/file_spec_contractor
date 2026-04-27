@@ -51,6 +51,11 @@ def _process_one_file(
   file_index: int = 0,
 ) -> Path | None:
   user_prompt = _build_user_prompt(rel_path, language, code)
+
+  if dry_run:
+    console.log(f"Would generate spec for {rel_path}")
+    return resolve_output_path(src_path, project_root, cfg, file_index=file_index)
+
   console.log(f"Generating spec for {rel_path} ...")
   spec_text = provider.generate(system_prompt, user_prompt)
   out_path = resolve_output_path(src_path, project_root, cfg, file_index=file_index)

@@ -147,6 +147,15 @@ def generate_command(
     raise typer.Exit()
 
   mode = "per-file" if cfg.runtime.force_per_file else "batch"
+
+  if dry_run and not cfg.runtime.force_per_file:
+    console.print(
+      "[yellow]Batch mode is not compatible with --dry-run. "
+      "Switching to per-file dry run.[/yellow]"
+    )
+    cfg.runtime.force_per_file = True
+    mode = "per-file"
+
   console.log(
     f"Found {len(targets)} files. Mode: {mode}. Concurrency: {cfg.runtime.concurrency}."
   )
