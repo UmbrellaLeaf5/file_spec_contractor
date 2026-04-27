@@ -129,13 +129,17 @@ def generate_command(
     f"Found {len(targets)} files. Mode: {mode}. Concurrency: {cfg.runtime.concurrency}."
   )
 
-  generate_for_files(
-    targets,
-    prompt_text,
-    provider_client,
-    cfg,
-    project_root=project_root,
-    dry_run=dry_run,
-    concurrency=cfg.runtime.concurrency,
-    force_per_file=cfg.runtime.force_per_file,
-  )
+  try:
+    generate_for_files(
+      targets,
+      prompt_text,
+      provider_client,
+      cfg,
+      project_root=project_root,
+      dry_run=dry_run,
+      concurrency=cfg.runtime.concurrency,
+      force_per_file=cfg.runtime.force_per_file,
+    )
+
+  except KeyboardInterrupt:
+    console.print("\n[yellow]Interrupted. Any completed specs have been saved.[/yellow]")

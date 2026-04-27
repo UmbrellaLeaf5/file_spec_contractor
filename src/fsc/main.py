@@ -1,9 +1,13 @@
 import typer
+from rich.console import Console
 
 from fsc.commands.deinit import deinit_command
 from fsc.commands.generate import generate_command
 from fsc.commands.init import init_command
 from fsc.commands.reinit import reinit_command
+
+
+console = Console()
 
 
 app = typer.Typer(
@@ -77,7 +81,12 @@ app.command(
 
 
 def main() -> None:
-  app()
+  try:
+    app()
+
+  except KeyboardInterrupt as ex:
+    console.print("\n[yellow]Interrupted by user. Shutting down.[/yellow]")
+    raise typer.Exit(code=130) from ex
 
 
 if __name__ == "__main__":

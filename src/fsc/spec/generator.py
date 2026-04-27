@@ -83,9 +83,14 @@ def generate_for_files(
     mode = "batch"
 
     if file_count > 0:
-      results = generate_batch(
-        file_data, prompt_template, provider, cfg, project_root, src_paths, dry_run
-      )
+      try:
+        results = generate_batch(
+          file_data, prompt_template, provider, cfg, project_root, src_paths, dry_run
+        )
+
+      except KeyboardInterrupt:
+        console.print("\n[yellow]Batch generation interrupted.[/yellow]")
+        return []
 
       if results:
         console.print(f"[green]Done. Processed {len(results)} files.[/green]")
@@ -120,17 +125,28 @@ def generate_for_files(
 
         futures[future] = rel_path
 
-      for future in as_completed(futures):
-        rel_path = futures[future]
+      try:
+        for future in as_completed(futures):
+          rel_path = futures[future]
 
-        try:
-          out = future.result()
+          try:
+            out = future.result()
 
-          if out is not None:
-            results.append(out)
+            if out is not None:
+              results.append(out)
 
-        except Exception as e:
-          console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+          except Exception as e:
+            console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+
+      except KeyboardInterrupt:
+        console.print(
+          f"\n[yellow]Interrupted. Saved {len(results)} of {file_count} files.[/yellow]"
+        )
+
+        for f in futures:
+          f.cancel()
+
+        return results
 
     console.print(f"[green]Done. Processed {len(results)} files.[/green]")
 
@@ -138,8 +154,8 @@ def generate_for_files(
 
   results = []
 
-  for rel_path, code in file_data.items():
-    try:
+  try:
+    for rel_path, code in file_data.items():
       out = _process_one_file(
         src_paths[rel_path],
         rel_path,
@@ -155,8 +171,11 @@ def generate_for_files(
       if out is not None:
         results.append(out)
 
-    except Exception as e:
-      console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+  except KeyboardInterrupt:
+    console.print(
+      f"\n[yellow]Interrupted. Saved {len(results)} of {file_count} files.[/yellow]"
+    )
+    return results
 
   console.print(f"[green]Done. Processed {len(results)} files.[/green]")
 
