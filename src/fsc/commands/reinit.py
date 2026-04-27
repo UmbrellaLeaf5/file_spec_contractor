@@ -16,6 +16,9 @@ def reinit_command(
   exclude_dirs: list[str] | None = typer.Option(None, "--exclude-dirs"),
   exclude_files: list[str] | None = typer.Option(None, "--exclude-files"),
   provider: str | None = typer.Option(None, "--provider"),
+  model: str | None = typer.Option(
+    None, "--model", help="Model name for the selected provider"
+  ),
   output_mode: str | None = typer.Option(None, "--output-mode"),
   output_dir: Path | None = typer.Option(None, "--output-dir"),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
@@ -37,6 +40,7 @@ def reinit_command(
     exclude_dirs=exclude_dirs,
     exclude_files=exclude_files,
     provider=provider,
+    model=model,
     output_mode=output_mode,
     output_dir=str(output_dir) if output_dir else None,
     prompt_file=str(prompt_file) if prompt_file else None,

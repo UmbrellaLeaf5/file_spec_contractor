@@ -26,6 +26,9 @@ def generate_command(
   exclude_dirs: list[str] | None = typer.Option(None, "--exclude-dirs"),
   exclude_files: list[str] | None = typer.Option(None, "--exclude-files"),
   provider: str | None = typer.Option(None, "--provider"),
+  model: str | None = typer.Option(
+    None, "--model", help="Model name for the selected provider"
+  ),
   output_mode: str | None = typer.Option(None, "--output-mode"),
   output_dir: Path | None = typer.Option(None, "--output-dir"),
   batch_size: int | None = typer.Option(
@@ -57,6 +60,7 @@ def generate_command(
     exclude_dirs=exclude_dirs,
     exclude_files=exclude_files,
     provider=provider,
+    model=model,
     output_mode=output_mode,
     output_dir=str(output_dir) if output_dir else None,
     batch_size=batch_size,
@@ -104,6 +108,9 @@ def generate_command(
 
     provider_client = DeepSeekProvider(api_key=resolved)
 
+    if cfg.api.model:
+      provider_client.model = cfg.api.model
+
   elif provider_name == "openrouter":
     env_key = os.environ.get("OPEN_ROUTER_API_KEY", "")
     resolved = api_key or env_key or dotenv.get("OPEN_ROUTER_API_KEY", "")
@@ -116,6 +123,9 @@ def generate_command(
       raise typer.Exit(code=2)
 
     provider_client = OpenRouterProvider(api_key=resolved)
+
+    if cfg.api.model:
+      provider_client.model = cfg.api.model
 
   else:
     console.print(f"[red]Unknown provider: {provider_name}[/red]")

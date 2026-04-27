@@ -29,6 +29,7 @@ class OutputConfig(BaseModel):
 
 class ApiConfig(BaseModel):
   provider: str = "openrouter"
+  model: str = ""
 
 
 class PromptConfig(BaseModel):

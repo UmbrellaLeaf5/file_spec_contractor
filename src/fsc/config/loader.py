@@ -62,6 +62,9 @@ def apply_cli_overrides(cfg: FSCConfig, cli_args: dict) -> FSCConfig:
   if cli_args.get("provider"):
     cfg.api.provider = cli_args["provider"]
 
+  if cli_args.get("model"):
+    cfg.api.model = cli_args["model"]
+
   if cli_args.get("output_mode"):
     cfg.output.output_mode = cli_args["output_mode"]
 

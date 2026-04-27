@@ -59,6 +59,9 @@ def init_command(
   exclude_dirs: list[str] | None = typer.Option(None, "--exclude-dirs"),
   exclude_files: list[str] | None = typer.Option(None, "--exclude-files"),
   provider: str | None = typer.Option(None, "--provider"),
+  model: str | None = typer.Option(
+    None, "--model", help="Model name for the selected provider"
+  ),
   output_mode: str | None = typer.Option(None, "--output-mode"),
   output_dir: Path | None = typer.Option(None, "--output-dir"),
   batch_size: int | None = typer.Option(
@@ -80,6 +83,7 @@ def init_command(
     exclude_dirs=exclude_dirs,
     exclude_files=exclude_files,
     provider=provider,
+    model=model,
     output_mode=output_mode,
     output_dir=str(output_dir) if output_dir else None,
     batch_size=batch_size,
