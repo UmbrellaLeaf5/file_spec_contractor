@@ -1,26 +1,61 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "file-spec-contractor"
+name = "file_spec_contractor"
 version = "0.2.2"
-description = "Generate compact file specifications for LLMs"
-authors = [{ name = "FileSpecContractor" }]
+description = "Token-saving contracts for your codebase"
+readme = "README.md"
 requires-python = ">=3.12"
+license = "Unlicense"
+authors = [
+  { name = "Dmitry Krivoruchko", email = "umbrella.leaf.for.work@gmail.com" },
+]
+keywords = [
+  "llm",
+  "specification",
+  "documentation",
+  "contract",
+  "ai",
+  "codebase",
+  "cli",
+  "developer-tools",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Documentation",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
   "typer>=0.9.0",
   "rich>=13.0.0",
   "httpx>=0.24.0",
-  "python-dotenv>=1.2.2",
-  "pydantic>=2.13.3",
+  "pydantic>=2.0.0",
+  "python-dotenv>=1.0.0",
 ]
 
 [project.scripts]
 fsc = "fsc.main:main"
 
-[dependency-groups]
-dev = ["pytest>=9.0.3"]
+[project.urls]
+Repository = "https://github.com/UmbrellaLeaf5/file_spec_contractor"
+Issues = "https://github.com/UmbrellaLeaf5/file_spec_contractor/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=9.0.3", "pytest-mock>=3.12.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+fsc = ["prompts/*.md"]
+
+[dependency-groups]
+dev = [
+    "twine>=6.2.0",
+]

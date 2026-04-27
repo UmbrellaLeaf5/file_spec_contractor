@@ -12,27 +12,15 @@ Born from the frustration of trying to vibe-code on a student laptop.
 
 ## Installation
 
-### From source
-
 ```bash
-git clone <repo-url>
-cd file_spec_contractor
-uv sync
+# Install with uv
+uv tool install file_spec_contractor
+
+# Or with pip
+pip install file_spec_contractor
 ```
 
-After install, the `fsc` command becomes available in the project's virtual environment:
-
-```bash
-uv run fsc --help
-```
-
-### Install as a global tool
-
-```bash
-uv tool install .
-```
-
-Now `fsc` is available system-wide:
+After installation, the `fsc` command is available globally:
 
 ```bash
 fsc --help
@@ -304,17 +292,22 @@ Each generated spec follows this structure:
 ## Development
 
 ```bash
-# Install dependencies (including dev)
-uv sync --dev
+# Clone and install in editable mode
+git clone https://github.com/UmbrellaLeaf5/file_spec_contractor.git
+cd file_spec_contractor
+uv sync
 
 # Run all tests (63 tests)
-uv run python -m pytest tests/
+uv run pytest
 
 # Run specific test file
-uv run python -m pytest tests/test_deepseek.py -v
+uv run pytest tests/test_deepseek.py -v
 
 # Run CLI in dev
 uv run fsc --help
+
+# Build package
+uv build
 ```
 
 ## Roadmap
@@ -338,5 +331,5 @@ uv run fsc --help
 - [ ] `--update` flag for incremental regeneration
 - [ ] Rich progress bars for large projects
 - [ ] Local model support (Ollama, LM Studio)
-- [ ] Publish to PyPI (`pip install file-spec-contractor`)
+- [ ] Publish to PyPI (`pip install file_spec_contractor`)
 - [ ] VS Code extension (generate specs from context menu / command palette)
