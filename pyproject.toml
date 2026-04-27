@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "file_spec_contractor"
-version = "0.2.2"
+version = "0.2.4"
 description = "Token-saving contracts for your codebase"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -59,6 +59,4 @@ fsc = ["prompts/*.md"]
 version_file = "src/fsc/_version.py"
 
 [dependency-groups]
-dev = [
-    "twine>=6.2.0",
-]
+dev = ["twine>=6.2.0"]

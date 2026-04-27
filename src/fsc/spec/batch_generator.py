@@ -20,7 +20,8 @@ def _build_batch_prompt(files: dict[str, str], language: str) -> str:
   )
 
   for rel_path in sorted(files):
-    prompt += f"### FILE: {rel_path}\n"
+    normalized = rel_path.replace("\\", "/")
+    prompt += f"### FILE: {normalized}\n"
     prompt += f"### LANG: {language}\n\n"
     prompt += f"```\n{files[rel_path]}\n```\n\n"
 
@@ -31,7 +32,7 @@ def _parse_batch_response(response: str) -> dict[str, str]:
   specs: dict[str, str] = {}
 
   for match in _SPEC_MARKER.finditer(response):
-    path = match.group(1).strip()
+    path = match.group(1).strip().replace("\\", "/")
     content = match.group(2).strip()
 
     if content.endswith("---"):
@@ -51,6 +52,12 @@ def generate_batch(
   src_paths: dict[str, Path],
   dry_run: bool = False,
 ) -> list[Path]:
+  if not src_paths:
+    console.print("[yellow]Batch skipped: no valid source paths.[/yellow]")
+    return []
+
+  src_paths_norm = {k.replace("\\", "/"): v for k, v in src_paths.items()}
+
   count = len(files)
   console.log(f"Generating specs for {count} files in batch mode ...")
 
@@ -66,7 +73,7 @@ def generate_batch(
   file_index = 0
 
   for rel_path, spec_text in sorted(parsed.items()):
-    src = src_paths.get(rel_path)
+    src = src_paths_norm.get(rel_path)
 
     if src is None:
       console.print(

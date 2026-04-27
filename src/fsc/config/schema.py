@@ -36,7 +36,7 @@ class PromptConfig(BaseModel):
 
 
 class RuntimeConfig(BaseModel):
-  concurrency: int = Field(default=1, ge=1)
+  concurrency: int = Field(default=3, ge=1)
   force_per_file: bool = False
 
 
