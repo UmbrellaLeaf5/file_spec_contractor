@@ -12,6 +12,17 @@ from fsc.prompt_loader import builtin_prompt_text
 console = Console(log_path=False)
 
 
+def _count_fsc_artifacts(root: Path) -> int:
+  count = 0
+
+  if (root / ".fsc").exists():
+    count += 1
+
+  count += len(list(root.rglob("*.fsc.md")))
+
+  return count
+
+
 def _remove_fsc_artifacts(root: Path) -> int:
   removed = 0
   fsc_dir = root / ".fsc"
@@ -20,7 +31,7 @@ def _remove_fsc_artifacts(root: Path) -> int:
     shutil.rmtree(fsc_dir)
     removed += 1
 
-  for spec in sorted(root.rglob("*.py.fsc.md")):
+  for spec in sorted(root.rglob("*.fsc.md")):
     spec.unlink()
     removed += 1
 
@@ -32,7 +43,7 @@ def _confirm_destructive(yes: bool) -> None:
     return
 
   typer.confirm(
-    "This will remove all existing .fsc/ configuration and .py.fsc.md files. Continue?",
+    "This will remove all existing .fsc/ configuration and *.fsc.md files. Continue?",
     abort=True,
   )
 
@@ -56,12 +67,16 @@ def _do_init(
     return
 
   if force:
-    removed = _remove_fsc_artifacts(root)
+    artifact_count = _count_fsc_artifacts(root)
 
-    if removed > 0:
+    if artifact_count > 0:
       _confirm_destructive(yes)
-      _remove_fsc_artifacts(root)
-      console.print(f"[green]Removed {removed} existing artifact{'s' if removed != 1 else ''}.[/green]")
+      removed = _remove_fsc_artifacts(root)
+
+      console.print(
+        f"[green]Removed {removed} existing artifact"
+        f"{'s' if removed != 1 else ''}.[/green]"
+      )
 
   fsc_dir.mkdir(parents=True, exist_ok=True)
 
@@ -92,9 +107,7 @@ def init_command(
   force: bool = typer.Option(
     False, "-f", "--force", help="Remove existing artifacts and recreate"
   ),
-  yes: bool = typer.Option(
-    False, "-y", "--yes", help="Skip confirmation prompts"
-  ),
+  yes: bool = typer.Option(False, "-y", "--yes", help="Skip confirmation prompts"),
   extensions: list[str] | None = typer.Option(
     None, "--extensions", help="File extensions to include"
   ),

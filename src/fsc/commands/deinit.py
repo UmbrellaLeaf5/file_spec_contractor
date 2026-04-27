@@ -18,7 +18,7 @@ def deinit_command(
     False, "-y", "--yes", help="Skip confirmation prompts"
   ),
 ) -> None:
-  """Remove .fsc/ and all generated .py.fsc.md files from project."""
+  """Remove .fsc/ and all generated *.fsc.md files from project."""
 
   root = Path(directory).resolve() if directory else Path.cwd()
   removed_dirs = 0
@@ -35,7 +35,7 @@ def deinit_command(
   else:
     console.print("[yellow].fsc/ not found, skipping[/yellow]")
 
-  for spec in sorted(root.rglob("*.py.fsc.md")):
+  for spec in sorted(root.rglob("*.fsc.md")):
     spec.unlink()
 
     try:

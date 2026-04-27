@@ -88,7 +88,7 @@ app.command(
 app.command(
   name="deinit",
   help=(
-    "Remove .fsc/ and all generated .py.fsc.md files from the project tree.\n\n"
+    "Remove .fsc/ and all generated *.fsc.md files from the project tree.\n\n"
     "Prompts for confirmation unless -y is used.\n\n"
     "Examples:\n"
     "  fsc deinit\n"
