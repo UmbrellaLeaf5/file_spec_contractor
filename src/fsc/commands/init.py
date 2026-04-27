@@ -2,26 +2,10 @@ from pathlib import Path
 
 from rich.console import Console
 
+from fsc.config.schema import FscConfig
+
 
 console = Console()
-
-DEFAULT_CONFIG = """[project]
-extensions = [".py"]
-exclude_dirs = [".venv", "venv", ".git", "__pycache__", "tests"]
-exclude_files = ["setup.py", "conftest.py"]
-
-[output]
-language = "en"
-output_mode = "mirror"
-output_dir = ".fsc/specs"
-
-[api]
-provider = "deepseek"
-deepseek_api_key = ""
-
-[prompt]
-file = ".fsc/PROMPT.md"
-"""
 
 
 def init_command() -> None:
@@ -33,7 +17,7 @@ def init_command() -> None:
   config_path = fsc_dir / "config.toml"
 
   if not config_path.exists():
-    config_path.write_text(DEFAULT_CONFIG)
+    config_path.write_text(FscConfig().to_toml())
     console.print("[green]Created .fsc/config.toml[/green]")
 
   else:

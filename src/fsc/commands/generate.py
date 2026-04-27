@@ -34,7 +34,6 @@ def generate_command(
   """Generate .fsc.md specifications for project files."""
 
   project_root = Path.cwd()
-
   cfg = load_merged_config(project_root)
 
   cli_args = dict(
@@ -52,16 +51,12 @@ def generate_command(
 
   if verbose:
     console.log("Using configuration:")
-    console.log(cfg)
+    console.log(cfg.to_dict())
 
-  prompt_path = resolve_prompt_path(
-    project_root, cfg, cli_prompt=cfg.get("prompt", {}).get("file")
-  )
+  prompt_path = resolve_prompt_path(project_root, cfg, cli_prompt=cfg.prompt.file)
   prompt_text = load_prompt(prompt_path)
 
-  api_key = os.environ.get("DEEPSEEK_API_KEY") or cfg.get("api", {}).get(
-    "deepseek_api_key"
-  )
+  api_key = os.environ.get("DEEPSEEK_API_KEY") or cfg.api.deepseek_api_key
 
   if not api_key:
     console.print(
@@ -79,9 +74,9 @@ def generate_command(
   else:
     targets = scan_files(
       project_root,
-      extensions=cfg.get("project", {}).get("extensions", []),
-      exclude_dirs=cfg.get("project", {}).get("exclude_dirs", []),
-      exclude_files=cfg.get("project", {}).get("exclude_files", []),
+      extensions=cfg.project.extensions,
+      exclude_dirs=cfg.project.exclude_dirs,
+      exclude_files=cfg.project.exclude_files,
     )
 
   if not targets:
