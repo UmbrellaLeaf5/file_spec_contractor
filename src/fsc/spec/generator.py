@@ -83,13 +83,13 @@ def generate_for_files(
 
   for src_path in files:
     if not force and is_spec_fresh(src_path, project_root, cfg):
-      rel_path = _resolve_rel(src_path, project_root)
+      rel_path = _resolve_rel(src_path, project_root).replace("\\", "/")
       console.log(f"Skipping {rel_path} (spec is up to date)")
       skipped += 1
       continue
 
     code = _read_file_safe(src_path)
-    rel_path = _resolve_rel(src_path, project_root)
+    rel_path = _resolve_rel(src_path, project_root).replace("\\", "/")
     file_data[rel_path] = code
     src_paths[rel_path] = src_path
 
