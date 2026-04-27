@@ -1,5 +1,14 @@
 # FileSpecContractor (fsc)
 
+[![Python](https://img.shields.io/badge/Python-3.12+-blue?logo=python)](https://python.org)
+[![Typer](https://img.shields.io/badge/Typer-0.15+-blue)](https://typer.tiangolo.com/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-2.0+-purple)](https://docs.pydantic.dev/)
+[![Rich](https://img.shields.io/badge/Rich-13.0+-brightgreen)](https://rich.readthedocs.io/)
+[![httpx](https://img.shields.io/badge/httpx-0.24+-orange)](https://www.python-httpx.org/)
+[![python-dotenv](https://img.shields.io/badge/dotenv-1.0+-yellow)](https://github.com/theskumar/python-dotenv)
+[![License](https://img.shields.io/badge/License-Unlicense-lightgrey)](https://unlicense.org)
+[![Tests](https://img.shields.io/badge/tests-63_passed-green)]()
+
 > Token-saving contracts for your codebase.
 
 `fsc` is a command-line tool that generates descriptive specifications for your code files - compact "contracts" that help LLMs understand your project without burning through free-tier token limits.
@@ -50,8 +59,14 @@ fsc reinit
 # Reinit with custom flags
 fsc reinit --extensions .py --extensions .kt --language ru
 
+# Init with custom model
+fsc init --model deepseek-reasoner
+
 # Generate specifications for current directory (scan mode, batch by default)
 fsc generate
+
+# Generate with a specific model
+fsc generate --model openai/gpt-4o-mini
 
 # Generate for specific files
 fsc generate --file src/machine.py
@@ -65,11 +80,11 @@ fsc generate --force-per-file -c 5
 # Preview what would be generated (no files written)
 fsc generate --dry-run --verbose
 
-# Enable verbose output
-fsc generate --verbose
+# Regenerate all specs ignoring cache
+fsc generate -f
 
-# Russian language specifications
-fsc generate --language ru
+# Check version
+fsc --version
 ```
 
 ### Generation Modes
@@ -103,17 +118,19 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--exclude-dirs`      | Directories to skip                                                |
 | `--exclude-files`     | File patterns to skip                                              |
 | `--provider`          | LLM provider: `openrouter` (default) or `deepseek`                 |
+| `--model`             | Model name for the selected provider                               |
 | `--api-key`           | API key for the selected provider                                  |
 | `--output-mode`       | `mirror` (default), `adjacent`, or `batch`                         |
 | `--output-dir`        | Output directory for mirror/batch mode (default: `.fsc/specs`)     |
 | `--batch-size`        | Files per folder in batch mode (default: `50`)                     |
 | `--prompt-file`       | Custom system prompt file                                          |
-| `--language`          | Output language: `en` (default) or `ru`                            |
-| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`)                 |
+| `--language`          | Prompt language: `en` (default) or `ru` (`init`/`reinit` only)     |
+| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`)                 |
 | `--force-per-file`    | Force per-file generation instead of batch                         |
 | `-f`, `--force`       | Regenerate all specs, ignoring cache                               |
 | `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
 | `--verbose`           | Detailed output (`generate` only)                                  |
+| `--version`           | Show version and exit                                              |
 
 ## Configuration
 
@@ -153,6 +170,7 @@ batch_size = 50          # files per folder (batch mode)
 # LLM provider
 [api]
 provider = "openrouter"        # "openrouter" or "deepseek"
+model = ""                     # model name; empty = provider default
 
 # Custom system prompt file (relative to project root)
 [prompt]
@@ -160,7 +178,7 @@ file = ".fsc/PROMPT.md"
 
 # Generation runtime settings
 [runtime]
-concurrency = 1            # parallel threads for per-file mode
+concurrency = 3            # parallel threads for per-file mode
 force_per_file = false     # skip batch mode, use per-file
 ```
 
