@@ -11,8 +11,10 @@ from fsc.prompt_loader import builtin_prompt_text
 console = Console()
 
 
-def _do_init(yes: bool, cli_args: dict) -> None:
-  fsc_dir = Path.cwd() / ".fsc"
+def _do_init(yes: bool, cli_args: dict, target_dir: Path | None = None) -> None:
+  root = Path(target_dir).resolve() if target_dir else Path.cwd()
+  root.mkdir(parents=True, exist_ok=True)
+  fsc_dir = root / ".fsc"
   config_path = fsc_dir / "config.toml"
 
   if config_path.exists() and not yes:
@@ -22,7 +24,7 @@ def _do_init(yes: bool, cli_args: dict) -> None:
     )
     return
 
-  fsc_dir.mkdir(exist_ok=True)
+  fsc_dir.mkdir(parents=True, exist_ok=True)
 
   cfg = FSCConfig()
   cfg = apply_cli_overrides(cfg, cli_args)
@@ -50,6 +52,9 @@ def _do_init(yes: bool, cli_args: dict) -> None:
 
 
 def init_command(
+  directory: Path | None = typer.Argument(
+    None, help="Target directory (default: current directory)"
+  ),
   yes: bool = typer.Option(
     False, "-y", "--yes", help="Skip confirmations, overwrite existing files"
   ),
@@ -70,7 +75,7 @@ def init_command(
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   language: str | None = typer.Option(None, "--language"),
   concurrency: int = typer.Option(
-    1, "-c", "--concurrency", help="Parallel requests for per-file mode"
+    3, "-c", "--concurrency", help="Parallel requests for per-file mode"
   ),
   force_per_file: bool = typer.Option(
     False, "--force-per-file", help="Force per-file generation instead of batch"
@@ -93,4 +98,4 @@ def init_command(
     force_per_file=force_per_file,
   )
 
-  _do_init(yes, cli_args)
+  _do_init(yes, cli_args, directory)

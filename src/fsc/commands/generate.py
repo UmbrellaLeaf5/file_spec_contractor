@@ -36,7 +36,7 @@ def generate_command(
   ),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   concurrency: int = typer.Option(
-    1, "-c", "--concurrency", help="Parallel requests for per-file mode"
+    3, "-c", "--concurrency", help="Parallel requests for per-file mode"
   ),
   force_per_file: bool = typer.Option(
     False, "--force-per-file", help="Force per-file generation instead of batch"

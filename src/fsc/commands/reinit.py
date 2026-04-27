@@ -7,6 +7,9 @@ from fsc.commands.init import _do_init
 
 
 def reinit_command(
+  directory: Path | None = typer.Argument(
+    None, help="Target directory (default: current directory)"
+  ),
   yes: bool = typer.Option(
     False, "-y", "--yes", help="Skip confirmations, overwrite existing files"
   ),
@@ -24,7 +27,7 @@ def reinit_command(
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   language: str | None = typer.Option(None, "--language"),
   concurrency: int = typer.Option(
-    1, "-c", "--concurrency", help="Parallel requests for per-file mode"
+    3, "-c", "--concurrency", help="Parallel requests for per-file mode"
   ),
   force_per_file: bool = typer.Option(
     False, "--force-per-file", help="Force per-file generation instead of batch"
@@ -32,7 +35,7 @@ def reinit_command(
 ) -> None:
   """deinit + init: remove all and recreate .fsc/ from scratch."""
 
-  deinit_command()
+  deinit_command(directory=directory)
   print()
 
   cli_args = dict(
@@ -49,4 +52,4 @@ def reinit_command(
     force_per_file=force_per_file,
   )
 
-  _do_init(True, cli_args)
+  _do_init(True, cli_args, directory)

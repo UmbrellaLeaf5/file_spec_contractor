@@ -68,7 +68,7 @@ def generate_for_files(
   cfg: FSCConfig,
   project_root: Path,
   dry_run: bool = False,
-  concurrency: int = 1,
+  concurrency: int = 3,
   force_per_file: bool = False,
   force: bool = False,
 ) -> list[Path]:

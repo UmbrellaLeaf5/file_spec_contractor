@@ -1,20 +1,25 @@
 import shutil
 from pathlib import Path
 
+import typer
 from rich.console import Console
 
 
 console = Console()
 
 
-def deinit_command() -> None:
+def deinit_command(
+  directory: Path | None = typer.Argument(
+    None, help="Target directory (default: current directory)"
+  ),
+) -> None:
   """Remove .fsc/ and all generated .fsc.md files from project."""
 
-  cwd = Path.cwd()
+  root = Path(directory).resolve() if directory else Path.cwd()
   removed_dirs = 0
   removed_files = 0
 
-  fsc_dir = cwd / ".fsc"
+  fsc_dir = root / ".fsc"
 
   if fsc_dir.exists():
     shutil.rmtree(fsc_dir)
@@ -24,11 +29,11 @@ def deinit_command() -> None:
   else:
     console.print("[yellow].fsc/ not found, skipping[/yellow]")
 
-  for spec in sorted(cwd.rglob("*.fsc.md")):
+  for spec in sorted(root.rglob("*.fsc.md")):
     spec.unlink()
 
     try:
-      rel = spec.relative_to(cwd)
+      rel = spec.relative_to(root)
 
     except ValueError:
       rel = spec
