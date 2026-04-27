@@ -6,7 +6,7 @@ from rich.console import Console
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
 
-console = Console()
+console = Console(log_path=False)
 
 _SPEC_MARKER = re.compile(r"## SPEC:\s*(.+?)\s*\n(.*?)(?=\n## SPEC:|\Z)", re.DOTALL)
 
@@ -68,7 +68,6 @@ def generate_bulk(
   count = len(files)
 
   console.log(f"Generating specs for {count} files in bulk mode ...")
-
 
   batch_prompt = _build_batch_prompt(files, cfg.output.language)
   response = provider.generate(system_prompt, batch_prompt)

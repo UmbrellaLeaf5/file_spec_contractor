@@ -5,7 +5,7 @@ import typer
 from rich.console import Console
 
 
-console = Console()
+console = Console(log_path=False)
 
 
 def deinit_command(

@@ -8,7 +8,7 @@ from fsc.config.schema import FSCConfig
 from fsc.prompt_loader import builtin_prompt_text
 
 
-console = Console()
+console = Console(log_path=False)
 
 
 def _do_init(yes: bool, cli_args: dict, target_dir: Path | None = None) -> None:

@@ -9,7 +9,7 @@ from fsc.commands.init import init_command
 from fsc.commands.reinit import reinit_command
 
 
-console = Console()
+console = Console(log_path=False)
 
 
 app = typer.Typer(

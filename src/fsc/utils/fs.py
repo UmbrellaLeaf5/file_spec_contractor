@@ -37,7 +37,7 @@ def scan_files(
 
 def _encode_path(rel_path: str) -> str:
   encoded = rel_path.replace("\\", "__").replace("/", "__")
-  return encoded.rsplit(".", 1)[0] + ".fsc.md"
+  return encoded + ".fsc.md"
 
 
 def resolve_output_path(
@@ -47,7 +47,7 @@ def resolve_output_path(
   file_index: int | None = None,
 ) -> Path:
   if cfg.output.output_mode == "adjacent":
-    return src_path.with_name(src_path.stem + ".fsc.md")
+    return src_path.with_name(src_path.name + ".fsc.md")
 
   try:
     rel = src_path.relative_to(project_root)
@@ -67,8 +67,7 @@ def resolve_output_path(
 
   out_dir = Path(cfg.output.output_dir)
   target = out_dir / rel
-
-  return target.with_suffix(".fsc.md")
+  return target.with_suffix(target.suffix + ".fsc.md")
 
 
 def write_spec_atomic(path: Path, text: str) -> None:

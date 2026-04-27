@@ -219,7 +219,7 @@ fsc generate --provider deepseek --api-key sk-...
 | Provider                 | Model                      | Free | Env var               |
 | ------------------------ | -------------------------- | ---- | --------------------- |
 | **OpenRouter** (default) | `openai/gpt-oss-120b:free` | yes  | `OPEN_ROUTER_API_KEY` |
-| DeepSeek                 | `deepseek-chat`            | yes  | `DEEPSEEK_API_KEY`    |
+| DeepSeek                 | `deepseek-chat`            | no   | `DEEPSEEK_API_KEY`    |
 
 Switch provider via config or CLI:
 

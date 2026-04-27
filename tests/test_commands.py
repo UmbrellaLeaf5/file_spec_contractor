@@ -59,13 +59,13 @@ def test_reinit_full_cycle(tmp_path: Path, monkeypatch):
   monkeypatch.chdir(tmp_path)
 
   runner.invoke(app, ["init", "-y"])
-  (tmp_path / "spec.fsc.md").write_text("stale")
+  (tmp_path / "spec.py.fsc.md").write_text("stale")
 
   result = runner.invoke(app, ["reinit", "-y"])
 
   assert result.exit_code == 0
   assert (tmp_path / ".fsc" / "config.toml").exists()
-  assert not (tmp_path / "spec.fsc.md").exists()
+  assert not (tmp_path / "spec.py.fsc.md").exists()
 
 
 def test_reinit_preserves_custom_config(tmp_path: Path, monkeypatch):
@@ -98,7 +98,7 @@ def test_deinit_removes_specs(tmp_path: Path, monkeypatch):
   monkeypatch.chdir(tmp_path)
 
   runner.invoke(app, ["init", "-y"])
-  spec = tmp_path / "app.fsc.md"
+  spec = tmp_path / "app.py.fsc.md"
   spec.write_text("stale")
 
   runner.invoke(app, ["deinit"])

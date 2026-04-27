@@ -6,7 +6,7 @@ from rich.console import Console
 from fsc.config.schema import FSCConfig
 
 
-console = Console()
+console = Console(log_path=False)
 
 
 def resolve_prompt_path(

@@ -11,7 +11,7 @@ from fsc.spec.bulk_generator import generate_bulk
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
 
-console = Console()
+console = Console(log_path=False)
 
 _OUTPUT_MODES = ("mirror", "adjacent", "batch")
 

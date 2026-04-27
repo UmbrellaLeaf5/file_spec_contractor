@@ -13,7 +13,7 @@ from fsc.utils.env import load_dotenv
 from fsc.utils.fs import scan_files
 
 
-console = Console()
+console = Console(log_path=False)
 
 
 def generate_command(

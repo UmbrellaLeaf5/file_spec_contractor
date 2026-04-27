@@ -17,7 +17,7 @@ def test_resolve_output_path_adjacent(tmp_path: Path):
   cfg.output.output_mode = "adjacent"
 
   result = resolve_output_path(src, tmp_path, cfg)
-  assert result == tmp_path / "src" / "app.fsc.md"
+  assert result == tmp_path / "src" / "app.py.fsc.md"
 
 
 def test_resolve_output_path_mirror(tmp_path: Path):
@@ -29,7 +29,7 @@ def test_resolve_output_path_mirror(tmp_path: Path):
   cfg.output.output_dir = str(tmp_path / ".fsc" / "specs")
 
   result = resolve_output_path(src, tmp_path, cfg)
-  assert result == tmp_path / ".fsc" / "specs" / "src" / "app.fsc.md"
+  assert result == tmp_path / ".fsc" / "specs" / "src" / "app.py.fsc.md"
 
 
 def test_resolve_output_path_batch(tmp_path: Path):
@@ -42,7 +42,7 @@ def test_resolve_output_path_batch(tmp_path: Path):
   cfg.output.batch_size = 50
 
   result = resolve_output_path(src, tmp_path, cfg, file_index=0)
-  assert result == tmp_path / ".fsc" / "batches" / "batch-1" / "src__app.fsc.md"
+  assert result == tmp_path / ".fsc" / "batches" / "batch-1" / "src__app.py.fsc.md"
 
 
 def test_resolve_output_path_batch_custom_size(tmp_path: Path):
@@ -68,7 +68,7 @@ def test_resolve_output_path_batch_custom_size(tmp_path: Path):
 
 
 def test_write_spec_atomic_creates_parents(tmp_path: Path):
-  path = tmp_path / "a" / "b" / "c" / "file.fsc.md"
+  path = tmp_path / "a" / "b" / "c" / "file.py.fsc.md"
   write_spec_atomic(path, "content")
 
   assert path.exists()
@@ -76,7 +76,7 @@ def test_write_spec_atomic_creates_parents(tmp_path: Path):
 
 
 def test_write_spec_atomic_overwrites(tmp_path: Path):
-  path = tmp_path / "spec.fsc.md"
+  path = tmp_path / "spec.py.fsc.md"
   write_spec_atomic(path, "first")
   write_spec_atomic(path, "second")
 
@@ -106,7 +106,7 @@ def test_is_spec_fresh_spec_newer(tmp_path: Path):
 
 
 def test_encode_path():
-  assert _encode_path("src/app.py") == "src__app.fsc.md"
-  assert _encode_path("src\\controllers\\user.py") == "src__controllers__user.fsc.md"
-  assert _encode_path("app.py") == "app.fsc.md"
-  assert _encode_path("deep/nested/path/file.kt") == "deep__nested__path__file.fsc.md"
+  assert _encode_path("src/app.py") == "src__app.py.fsc.md"
+  assert _encode_path("src\\controllers\\user.py") == "src__controllers__user.py.fsc.md"
+  assert _encode_path("app.py") == "app.py.fsc.md"
+  assert _encode_path("deep/nested/path/file.kt") == "deep__nested__path__file.kt.fsc.md"
