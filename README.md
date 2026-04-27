@@ -50,11 +50,17 @@ fsc init --extensions .py --extensions .kt --language ru
 # Init with a different provider
 fsc init --provider deepseek
 
-# Overwrite existing config
-fsc init --yes
+# Recreate from scratch (removes existing .fsc/ and specs)
+fsc init --force
+
+# Same without confirmation prompt
+fsc init --force -y
 
 # Remove all fsc artifacts (.fsc/ and *.fsc.md files)
 fsc deinit
+
+# Skip confirmation
+fsc deinit -y
 
 # Recreate configuration from scratch (deinit + init)
 fsc reinit
@@ -102,12 +108,12 @@ If bulk mode fails to produce parsable output, `fsc` automatically falls back to
 
 ### Commands
 
-| Command        | Description                                                                                                                 |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `init [dir]`   | Create `.fsc/` with config and prompt. Accepts optional target directory and all config flags. Warns if already configured. |
-| `deinit [dir]` | Remove `.fsc/` and all `*.fsc.md` files from the project. Accepts optional target directory.                                |
-| `reinit [dir]` | `deinit` + `init`. Accepts all the same flags as `init`.                                                                    |
-| `generate`     | Generate `.fsc.md` specifications.                                                                                          |
+| Command        | Description                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `init [dir]`   | Create `.fsc/` with config and prompt. Accepts optional target directory and all config flags. Use `--force` to recreate from scratch. |
+| `deinit [dir]` | Remove `.fsc/` and all `*.fsc.md` files. Prompts for confirmation unless `-y`.                                                         |
+| `reinit [dir]` | `init --force` equivalent. Removes all artifacts, then creates fresh `.fsc/`. Prompts for confirmation unless `-y`.                    |
+| `generate`     | Generate `*.fsc.md` specifications.                                                                                                    |
 
 ### Options
 
@@ -115,7 +121,8 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 
 | Option                | Description                                                        |
 | --------------------- | ------------------------------------------------------------------ |
-| `-y`, `--yes`         | Skip confirmations, overwrite existing files (`init`/`reinit`)     |
+| `--force`             | Recreate config from scratch (`init`/`reinit`)                     |
+| `-y`, `--yes`         | Skip confirmation prompts on destructive operations                |
 | `--file`              | Specific files to generate specs for (`generate` only, repeatable) |
 | `--extensions`        | File extensions to include (default: `.py`)                        |
 | `--exclude-dirs`      | Directories to skip                                                |
@@ -281,7 +288,7 @@ If no prompt file is found, a warning is shown and the built-in prompt is used.
 1. Scans your project for files matching configured extensions
 2. Sends all files in a single request to the LLM (bulk mode, default) or one-by-one (per-file mode)
 3. The LLM generates structured `.fsc.md` specifications
-4. Saves the specifications - ready to be fed to any LLM agent
+4. Saves the specifications as `file.<ext>.fsc.md` - ready to be fed to any LLM agent
 5. On subsequent runs, skips unchanged files. If output mode changed, moves specs instead of regenerating.
 
 ## Specification Format
@@ -353,9 +360,10 @@ uv build
 - [x] Graceful shutdown on Ctrl+C
 - [x] 63 tests (unit, integration, CLI)
 - [x] Spec auto-move on output mode change (no wasted regeneration)
-- [x] `fsc --version`
-- [x] `fsc init <dir>` - initialise in any directory
+- [x] `fsc --version` and setuptools-scm versioning
+- [x] `fsc init <dir>` — initialise in any directory
 - [x] CI pipeline with GitHub Actions
+- [x] `--force` / `--yes` / confirmation prompts for destructive commands
 - [ ] PyPI publish automation
 - [ ] `--update` flag for incremental regeneration
 - [ ] Rich progress bars for large projects
