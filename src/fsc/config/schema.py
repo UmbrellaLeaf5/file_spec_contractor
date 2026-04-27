@@ -29,11 +29,18 @@ class PromptConfig:
 
 
 @dataclass
+class RuntimeConfig:
+  concurrency: int = 1
+  force_per_file: bool = False
+
+
+@dataclass
 class FscConfig:
   project: ProjectConfig = field(default_factory=ProjectConfig)
   output: OutputConfig = field(default_factory=OutputConfig)
   api: ApiConfig = field(default_factory=ApiConfig)
   prompt: PromptConfig = field(default_factory=PromptConfig)
+  runtime: RuntimeConfig = field(default_factory=RuntimeConfig)
 
   @classmethod
   def from_dict(cls, data: dict) -> "FscConfig":
@@ -42,6 +49,7 @@ class FscConfig:
       output=OutputConfig(**data.get("output", {})),
       api=ApiConfig(**data.get("api", {})),
       prompt=PromptConfig(**data.get("prompt", {})),
+      runtime=RuntimeConfig(**data.get("runtime", {})),
     )
 
   def to_dict(self) -> dict:

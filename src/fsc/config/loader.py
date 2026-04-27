@@ -21,6 +21,7 @@ DEFAULTS: dict = {
     "deepseek_api_key": "",
   },
   "prompt": {"file": ".fsc/PROMPT.md"},
+  "runtime": {"concurrency": 1, "force_per_file": False},
 }
 
 
@@ -92,5 +93,11 @@ def apply_cli_overrides(cfg: FscConfig, cli_args: dict) -> FscConfig:
 
   if cli_args.get("language"):
     cfg.output.language = cli_args["language"]
+
+  if cli_args.get("concurrency") is not None:
+    cfg.runtime.concurrency = cli_args["concurrency"]
+
+  if cli_args.get("force_per_file") is not None:
+    cfg.runtime.force_per_file = cli_args["force_per_file"]
 
   return cfg

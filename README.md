@@ -44,13 +44,16 @@ fsc --help
 # Set up configuration in current directory
 fsc init
 
+# Overwrite existing config
+fsc init --yes
+
 # Remove all fsc artifacts (.fsc/ and *.fsc.md files)
 fsc deinit
 
 # Recreate configuration from scratch (deinit + init)
 fsc reinit
 
-# Generate specifications for current directory (scan mode)
+# Generate specifications for current directory (scan mode, batch by default)
 fsc generate
 
 # Generate for specific files
@@ -59,27 +62,45 @@ fsc generate --file src/machine.py
 # Generate with custom extensions
 fsc generate --extensions .py .kt
 
-# Preview what would be generated (no API calls, no files written)
+# Force per-file mode with parallel requests
+fsc generate --force-per-file -c 5
+
+# Preview what would be generated (no files written)
 fsc generate --dry-run --verbose
 
 # Enable verbose output
 fsc generate --verbose
+
+# Russian language specifications
+fsc generate --language ru
 ```
+
+### Generation Modes
+
+| Mode | Flag | Behaviour |
+|------|------|-----------|
+| **batch** | *(default)* | All files in a single LLM request. Consistent, cross-referenced specifications. |
+| **per-file sequential** | `--force-per-file` | Each file separately, one at a time. |
+| **per-file parallel** | `--force-per-file -c N` | N files simultaneously via thread pool. Fastest for large projects. |
+
+If batch mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
 
 ### Options
 
-| Option            | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| `--file`          | Specific files to generate specs for (repeatable)        |
-| `--extensions`    | File extensions to include (default: `.py`)              |
-| `--exclude-dirs`  | Directories to skip                                      |
-| `--exclude-files` | File patterns to skip                                    |
-| `--output-mode`   | `mirror` (default) or `adjacent`                         |
-| `--output-dir`    | Output directory for mirror mode (default: `.fsc/specs`) |
-| `--prompt-file`   | Custom system prompt file                                |
-| `--language`      | Output language: `en` (default) or `ru`                  |
-| `--dry-run`       | Preview without calling API or writing files             |
-| `--verbose`       | Detailed output                                          |
+| Option | Description |
+|--------|-------------|
+| `--file` | Specific files to generate specs for (repeatable) |
+| `--extensions` | File extensions to include (default: `.py`) |
+| `--exclude-dirs` | Directories to skip |
+| `--exclude-files` | File patterns to skip |
+| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `1`) |
+| `--force-per-file` | Force per-file generation instead of batch |
+| `--output-mode` | `mirror` (default) or `adjacent` |
+| `--output-dir` | Output directory for mirror mode (default: `.fsc/specs`) |
+| `--prompt-file` | Custom system prompt file |
+| `--language` | Output language: `en` (default) or `ru` |
+| `--dry-run` | Preview without writing files |
+| `--verbose` | Detailed output |
 
 ## Configuration
 
@@ -116,6 +137,10 @@ output_dir = ".fsc/specs"
 [api]
 provider = "deepseek"
 deepseek_api_key = ""
+
+[runtime]
+concurrency = 1
+force_per_file = false
 ```
 
 ### API Key

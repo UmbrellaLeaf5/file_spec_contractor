@@ -28,6 +28,12 @@ def generate_command(
   output_dir: Path | None = typer.Option(None, "--output-dir"),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   language: str | None = typer.Option(None, "--language"),
+  concurrency: int = typer.Option(
+    1, "-c", "--concurrency", help="Parallel requests for per-file mode"
+  ),
+  force_per_file: bool = typer.Option(
+    False, "--force-per-file", help="Force per-file generation instead of batch"
+  ),
   dry_run: bool = typer.Option(False, "--dry-run"),
   verbose: bool = typer.Option(False, "--verbose"),
 ) -> None:
@@ -45,6 +51,8 @@ def generate_command(
     output_dir=str(output_dir) if output_dir else None,
     prompt_file=str(prompt_file) if prompt_file else None,
     language=language,
+    concurrency=concurrency,
+    force_per_file=force_per_file,
   )
 
   cfg = apply_cli_overrides(cfg, cli_args)
@@ -83,13 +91,18 @@ def generate_command(
     console.print("[yellow]No files found to process.[/yellow]")
     raise typer.Exit()
 
-  results = generate_for_files(
+  mode = "per-file" if cfg.runtime.force_per_file else "batch"
+  console.log(
+    f"Found {len(targets)} files. Mode: {mode}. Concurrency: {cfg.runtime.concurrency}."
+  )
+
+  generate_for_files(
     targets,
     prompt_text,
     provider_client,
     cfg,
     project_root=project_root,
     dry_run=dry_run,
+    concurrency=cfg.runtime.concurrency,
+    force_per_file=cfg.runtime.force_per_file,
   )
-
-  console.print(f"[green]Done. Processed {len(results)} files.[/green]")
