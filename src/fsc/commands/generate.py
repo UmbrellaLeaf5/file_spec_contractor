@@ -54,7 +54,7 @@ def generate_command(
     console.log(cfg.to_dict())
 
   prompt_path = resolve_prompt_path(project_root, cfg, cli_prompt=cfg.prompt.file)
-  prompt_text = load_prompt(prompt_path)
+  prompt_text = load_prompt(prompt_path, cfg.output.language)
 
   api_key = os.environ.get("DEEPSEEK_API_KEY") or cfg.api.deepseek_api_key
 
