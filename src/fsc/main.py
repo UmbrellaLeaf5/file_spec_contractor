@@ -8,6 +8,7 @@ from fsc.commands.deinit import deinit_command
 from fsc.commands.generate import generate_command
 from fsc.commands.init import init_command
 from fsc.commands.reinit import reinit_command
+from fsc.utils import scala
 
 
 console = Console(log_path=False)
@@ -125,6 +126,13 @@ app.command(
 
 
 def main() -> None:
+  try:
+    if scala.detect():
+      console.print(scala.WARNING)
+
+  except Exception:
+    pass
+
   try:
     app()
 

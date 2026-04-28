@@ -41,6 +41,8 @@ dependencies = [
 
 [project.scripts]
 fsc = "fsc.main:main"
+file-spec-contractor = "fsc.main:main"
+file_spec_contractor = "fsc.main:main"
 
 [project.urls]
 Repository = "https://github.com/UmbrellaLeaf5/file_spec_contractor"
