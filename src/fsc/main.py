@@ -1,7 +1,6 @@
 import importlib.metadata
 
 import typer
-from rich.console import Console
 
 from fsc.commands.clean import clean_command
 from fsc.commands.deinit import deinit_command
@@ -9,9 +8,7 @@ from fsc.commands.generate import generate_command
 from fsc.commands.init import init_command
 from fsc.commands.reinit import reinit_command
 from fsc.utils import scala
-
-
-console = Console(log_path=False)
+from fsc.utils.console import console
 
 
 app = typer.Typer(

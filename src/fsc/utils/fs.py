@@ -2,8 +2,8 @@ import fnmatch
 import os
 from pathlib import Path
 
-from fsc.config.schema import FSCConfig
 from fsc.config.enums import OutputMode
+from fsc.config.schemas import FSCConfig
 
 
 def scan_files(

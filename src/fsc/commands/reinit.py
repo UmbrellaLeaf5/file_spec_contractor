@@ -9,9 +9,7 @@ def reinit_command(
   directory: Path | None = typer.Argument(
     None, help="Target directory (default: current directory)"
   ),
-  yes: bool = typer.Option(
-    False, "-y", "--yes", help="Skip confirmation prompts"
-  ),
+  yes: bool = typer.Option(False, "-y", "--yes", help="Skip confirmation prompts"),
   extensions: list[str] | None = typer.Option(
     None, "--extensions", help="File extensions to include"
   ),
@@ -29,7 +27,9 @@ def reinit_command(
     None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
   ),
   gen_mode: str | None = typer.Option(
-    None, "--gen-mode", help="Generation mode: bulk (default), per-file, per-file-parallel"
+    None,
+    "--gen-mode",
+    help="Generation mode: bulk (default), per-file, per-file-parallel",
   ),
 ) -> None:
   """Remove all artifacts and recreate .fsc/ from scratch."""

@@ -2,19 +2,16 @@ import os
 from pathlib import Path
 
 import typer
-from rich.console import Console
 
 from fsc.config.enums import GenerationMode
 from fsc.config.loader import apply_cli_overrides, load_merged_config
-from fsc.prompt_loader import load_prompt, resolve_prompt_path
 from fsc.providers.deepseek import DeepSeekProvider
 from fsc.providers.openrouter import OpenRouterProvider
 from fsc.spec.generator import generate_for_files
+from fsc.utils.console import console
 from fsc.utils.env import load_dotenv
 from fsc.utils.fs import scan_files
-
-
-console = Console(log_path=False)
+from fsc.utils.prompt_loader import load_prompt, resolve_prompt_path
 
 
 def generate_command(

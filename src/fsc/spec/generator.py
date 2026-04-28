@@ -3,16 +3,12 @@ from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from rich.console import Console
-
 from fsc.config.enums import GenerationMode, OutputMode
-from fsc.config.schema import FSCConfig
+from fsc.config.schemas import FSCConfig
 from fsc.providers.base import BaseProvider
 from fsc.spec.bulk_generator import generate_bulk
+from fsc.utils.console import console
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
-
-
-console = Console(log_path=False)
 
 
 def _find_fresh_spec_in_any_mode(

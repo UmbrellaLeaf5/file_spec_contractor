@@ -1,12 +1,9 @@
 from pathlib import Path
 
 import typer
-from rich.console import Console
 
+from fsc.utils.console import console
 from fsc.utils.fs import find_spec_files
-
-
-console = Console(log_path=False)
 
 
 def clean_command(

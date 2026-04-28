@@ -2,15 +2,12 @@ import shutil
 from pathlib import Path
 
 import typer
-from rich.console import Console
 
 from fsc.config.loader import apply_cli_overrides
-from fsc.config.schema import FSCConfig
-from fsc.prompt_loader import builtin_prompt_text
+from fsc.config.schemas import FSCConfig
+from fsc.utils.console import console
 from fsc.utils.fs import find_spec_files
-
-
-console = Console(log_path=False)
+from fsc.utils.prompt_loader import builtin_prompt_text
 
 
 def _count_fsc_artifacts(root: Path) -> int:
@@ -129,7 +126,9 @@ def init_command(
     None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
   ),
   gen_mode: str | None = typer.Option(
-    None, "--gen-mode", help="Generation mode: bulk (default), per-file, per-file-parallel"
+    None,
+    "--gen-mode",
+    help="Generation mode: bulk (default), per-file, per-file-parallel",
   ),
 ) -> None:
   """Create .fsc/ directory with template config and prompt."""

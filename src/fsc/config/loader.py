@@ -3,7 +3,7 @@ from pathlib import Path
 import tomllib
 
 from fsc.config.enums import GenerationMode
-from fsc.config.schema import FSCConfig
+from fsc.config.schemas import FSCConfig
 
 
 def _load_toml(path: Path) -> dict:

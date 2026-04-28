@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from fsc.config.schema import FSCConfig
 from fsc.config.enums import OutputMode
+from fsc.config.schemas import FSCConfig
 from fsc.utils.fs import (
   _encode_path,
   is_spec_fresh,

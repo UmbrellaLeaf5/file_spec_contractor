@@ -2,12 +2,12 @@ import os
 from pathlib import Path
 
 import pytest
-from fsc.config.schema import FSCConfig
 from fsc.config.enums import GenerationMode
-from fsc.prompt_loader import load_prompt
+from fsc.config.schemas import FSCConfig
 from fsc.providers.openrouter import OpenRouterProvider
 from fsc.spec.generator import generate_for_files
 from fsc.utils.env import load_dotenv
+from fsc.utils.prompt_loader import load_prompt
 
 
 def _get_openrouter_key() -> str:

@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import dotenv_values
 
 
-def load_dotenv(directory: Path) -> dict[str, str]:
+def load_dotenv(directory: Path) -> dict:
   """Загружает переменные из .env файла в указанной директории."""
   env_path = directory / ".env"
 

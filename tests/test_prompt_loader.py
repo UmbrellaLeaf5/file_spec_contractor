@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from fsc.config.schema import FSCConfig, PromptConfig
-from fsc.prompt_loader import (
+from fsc.config.schemas import FSCConfig, PromptConfig
+from fsc.utils.prompt_loader import (
   builtin_prompt_text,
   load_prompt,
   resolve_prompt_path,

@@ -3,8 +3,8 @@ import time
 from pathlib import Path
 
 import pytest
-from fsc.main import app
 from fsc.config.enums import GenerationMode
+from fsc.main import app
 from fsc.utils.env import load_dotenv
 from typer.testing import CliRunner
 
@@ -77,16 +77,13 @@ def test_full_pipeline_force(tmp_path: Path, monkeypatch):
   api_key = _get_api_key()
 
   if not api_key:
-    import pytest
     pytest.skip("OPEN_ROUTER_API_KEY not set")
 
   monkeypatch.chdir(tmp_path)
   monkeypatch.setenv("OPEN_ROUTER_API_KEY", api_key)
 
   src = tmp_path / "app.py"
-  src.write_text(
-    'def greet(name: str) -> str:\n    return f"Hello, {name}!"\n'
-  )
+  src.write_text('def greet(name: str) -> str:\n    return f"Hello, {name}!"\n')
 
   runner.invoke(app, ["init", "-y"])
 

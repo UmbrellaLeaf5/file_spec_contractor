@@ -1,12 +1,9 @@
 import re
 from pathlib import Path
 
-from rich.console import Console
-
+from fsc.utils.console import console
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
-
-console = Console(log_path=False)
 
 _SPEC_MARKER = re.compile(r"## SPEC:\s*(.+?)\s*\n(.*?)(?=\n## SPEC:|\Z)", re.DOTALL)
 

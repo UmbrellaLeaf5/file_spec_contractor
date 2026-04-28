@@ -1,10 +1,6 @@
 import httpx
-from rich.console import Console
 
 from .base import BaseProvider
-
-
-console = Console(log_path=False)
 
 
 class DeepSeekProvider(BaseProvider):

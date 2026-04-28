@@ -1,12 +1,8 @@
 import importlib.resources
 from pathlib import Path
 
-from rich.console import Console
-
-from fsc.config.schema import FSCConfig
-
-
-console = Console(log_path=False)
+from fsc.config.schemas import FSCConfig
+from fsc.utils.console import console
 
 
 def resolve_prompt_path(
