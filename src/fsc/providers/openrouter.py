@@ -1,6 +1,7 @@
 import httpx
 
 from fsc.utils.console import console
+
 from .base import BaseProvider
 
 
@@ -70,15 +71,13 @@ class OpenRouterProvider(BaseProvider):
 
     if provider_name:
       console.print(
-        f"[red]OpenRouter API error {code}: {message}"
-        f" (provider: {provider_name})[/red]"
+        f"[red]OpenRouter API error {code}: {message} (provider: {provider_name})[/red]"
       )
     else:
       console.print(f"[red]OpenRouter API error {code}: {message}[/red]")
 
     console.print(
-      "[red]Check your API key, verify model access, "
-      "or reduce the project size.[/red]"
+      "[red]Check your API key, verify model access, or reduce the project size.[/red]"
     )
 
   def close(self):

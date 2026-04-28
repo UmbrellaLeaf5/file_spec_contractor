@@ -1,6 +1,7 @@
 import httpx
 
 from fsc.utils.console import console
+
 from .base import BaseProvider
 
 
@@ -42,8 +43,7 @@ class DeepSeekProvider(BaseProvider):
 
     except httpx.HTTPError:
       console.print(
-        "[red]Network error connecting to DeepSeek. "
-        "Check your internet connection.[/red]"
+        "[red]Network error connecting to DeepSeek. Check your internet connection.[/red]"
       )
       raise RuntimeError("Network error connecting to DeepSeek") from None
 
