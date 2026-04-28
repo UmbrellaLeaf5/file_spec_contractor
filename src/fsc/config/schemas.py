@@ -46,7 +46,7 @@ class OutputConfig(BaseModel):
 
 class ApiConfig(BaseModel):
   provider: str = "openrouter"
-  model: str = ""
+  model: str | None = None
   max_tokens: int = Field(default=0, ge=0)
 
 
@@ -74,7 +74,7 @@ class FSCConfig(BaseModel):
     return self.model_dump()
 
   def to_toml(self) -> str:
-    d = self.model_dump(mode="json")
+    d = self.model_dump(mode="json", exclude_none=True)
     parts = []
 
     for section, fields in d.items():

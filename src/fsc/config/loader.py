@@ -63,7 +63,7 @@ def apply_cli_overrides(cfg: FSCConfig, overrides: CLIConfigOverrides) -> FSCCon
   if overrides.provider:
     cfg.api.provider = overrides.provider
 
-  if overrides.model:
+  if overrides.model is not None:
     cfg.api.model = overrides.model
 
   if overrides.output_mode:

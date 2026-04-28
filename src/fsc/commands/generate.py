@@ -109,7 +109,7 @@ def generate_command(
 
     provider_client = DeepSeekProvider(api_key=resolved)
 
-    if cfg.api.model:
+    if cfg.api.model is not None:
       provider_client.model = cfg.api.model
 
   elif provider_name == "openrouter":
@@ -125,7 +125,7 @@ def generate_command(
 
     provider_client = OpenRouterProvider(api_key=resolved)
 
-    if cfg.api.model:
+    if cfg.api.model is not None:
       provider_client.model = cfg.api.model
 
   else:
