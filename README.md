@@ -35,6 +35,22 @@ After installation, the `fsc` command is available globally:
 fsc --help
 ```
 
+### For Scala users
+
+The `fsc` command may conflict with the [Scala Fast Offline Compiler](https://www.scala-lang.org/) which also uses the `fsc` name. If both are installed, use the full package name instead:
+
+```bash
+file-spec-contractor init
+file-spec-contractor generate
+file-spec-contractor --help
+
+# or with underscore
+file_spec_contractor init
+file_spec_contractor generate
+```
+
+`fsc` automatically detects Scala environments and shows a warning if a conflict is possible.
+
 ## Usage
 
 ```bash
@@ -370,10 +386,10 @@ uv build
 - [x] `--force` / `--yes` / confirmation prompts for destructive commands
 - [x] PyPI publish automation
 - [ ] `--update` flag for incremental regeneration
-- [ ] clean command just to delete all specs
+- [x] clean command just to delete all specs
 - [ ] Rich progress bars for large projects
 - [ ] Local model support (Ollama, LM Studio)
-- [ ] check if Scala is used and make warning not to use short name
-- [ ] add long name usage (file-spec-contractor or file_spec_contractor instead of fsc)
+- [x] check if Scala is used and make warning not to use short name
+- [x] add long name usage (file-spec-contractor or file_spec_contractor instead of fsc)
 - [x] Publish to PyPI (`pip install file_spec_contractor`)
 - [ ] VS Code extension (generate specs from context menu / command palette)
