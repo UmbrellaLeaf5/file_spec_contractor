@@ -1,5 +1,6 @@
 import httpx
 
+from fsc.utils.console import console
 from .base import BaseProvider
 
 
@@ -19,17 +20,6 @@ class DeepSeekProvider(BaseProvider):
     self._client = httpx.Client(timeout=timeout)
 
   def generate(self, system_prompt: str, user_prompt: str, **kwargs) -> str:
-    """
-    Отправляет запрос к DeepSeek API и возвращает сгенерированный текст.
-
-    Args:
-        system_prompt: Системная инструкция (промпт из CodeAtlas).
-        user_prompt: Пользовательский запрос (код файла + метаданные).
-
-    Returns:
-        Сгенерированный текст спецификации.
-    """
-
     headers = {
       "Authorization": f"Bearer {self.api_key}",
       "Content-Type": "application/json",
@@ -49,14 +39,32 @@ class DeepSeekProvider(BaseProvider):
 
     try:
       resp = self._client.post(url, json=payload, headers=headers)
-      if resp.status_code != 200:  # noqa: PLR2004
-        raise RuntimeError(f"DeepSeek API error {resp.status_code}: {resp.text[:500]}")
 
-      data = resp.json()
-      return data["choices"][0]["message"]["content"]
+    except httpx.HTTPError:
+      console.print(
+        "[red]Network error connecting to DeepSeek. "
+        "Check your internet connection.[/red]"
+      )
+      raise RuntimeError("Network error connecting to DeepSeek") from None
 
-    except httpx.HTTPError as e:
-      raise RuntimeError(f"DeepSeek request failed: {e}") from e
+    if resp.status_code != 200:  # noqa: PLR2004
+      self._report_api_error(resp)
+      raise RuntimeError("DeepSeek API request failed")
+
+    data = resp.json()
+    return data["choices"][0]["message"]["content"]
+
+  def _report_api_error(self, resp: httpx.Response) -> None:
+    try:
+      body = resp.json()
+      error = body.get("error", {})
+      message = error.get("message", f"HTTP {resp.status_code}")
+
+    except Exception:
+      message = f"HTTP {resp.status_code}"
+
+    console.print(f"[red]DeepSeek API error: {message}[/red]")
+    console.print("[red]Check your API key or try again later.[/red]")
 
   def close(self):
     self._client.close()

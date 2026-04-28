@@ -75,11 +75,7 @@ def generate_bulk(
 
   batch_prompt = _build_batch_prompt(files, cfg.output.language)
 
-  gen_kwargs = {}
-  if cfg.api.max_tokens > 0:
-    gen_kwargs["max_tokens"] = cfg.api.max_tokens
-
-  response = provider.generate(system_prompt, batch_prompt, **gen_kwargs)
+  response = provider.generate(system_prompt, batch_prompt)
   parsed = _parse_batch_response(response)
 
   if not parsed:

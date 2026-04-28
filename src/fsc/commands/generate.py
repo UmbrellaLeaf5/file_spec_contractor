@@ -184,3 +184,6 @@ def generate_command(
 
   except KeyboardInterrupt:
     console.print("\n[yellow]Interrupted. Any completed specs have been saved.[/yellow]")
+
+  except RuntimeError:
+    raise typer.Exit(code=2)

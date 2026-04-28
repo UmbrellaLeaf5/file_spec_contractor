@@ -47,7 +47,6 @@ class OutputConfig(BaseModel):
 class ApiConfig(BaseModel):
   provider: str = "openrouter"
   model: str | None = None
-  max_tokens: int = Field(default=0, ge=0)
 
 
 class PromptConfig(BaseModel):
