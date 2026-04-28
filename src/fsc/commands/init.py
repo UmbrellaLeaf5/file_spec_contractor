@@ -130,7 +130,7 @@ def init_command(
   gen_mode: str | None = typer.Option(
     None,
     "--gen-mode",
-    help="Generation mode: bulk (default), per-file, per-file-parallel",
+    help="Generation mode: per-file (default), bulk, per-file-parallel",
   ),
 ) -> None:
   """Create .fsc/ directory with template config and prompt."""

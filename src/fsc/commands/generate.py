@@ -39,7 +39,7 @@ def generate_command(
   gen_mode: str | None = typer.Option(
     None,
     "--gen-mode",
-    help="Generation mode: bulk (default), per-file, per-file-parallel",
+    help="Generation mode: per-file (default), bulk, per-file-parallel",
   ),
   api_key: str | None = typer.Option(
     None, "--api-key", help="API key for the selected provider"

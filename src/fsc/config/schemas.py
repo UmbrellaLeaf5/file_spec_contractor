@@ -55,7 +55,7 @@ class PromptConfig(BaseModel):
 
 class RuntimeConfig(BaseModel):
   concurrency: int = Field(default=3, ge=1)
-  generation_mode: GenerationMode = GenerationMode.bulk
+  generation_mode: GenerationMode = GenerationMode.per_file
 
 
 class FSCConfig(BaseModel):

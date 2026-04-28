@@ -38,7 +38,7 @@ def test_full_pipeline_dry_run(tmp_path: Path, monkeypatch):
   )
 
   assert "Found 1 files" in result.stdout
-  assert GenerationMode.bulk.value in result.stdout.lower()
+  assert GenerationMode.per_file.value in result.stdout.lower()
 
 
 def test_full_pipeline_cache(tmp_path: Path, monkeypatch):

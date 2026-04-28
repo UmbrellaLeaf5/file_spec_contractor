@@ -33,7 +33,7 @@ def reinit_command(
   gen_mode: str | None = typer.Option(
     None,
     "--gen-mode",
-    help="Generation mode: bulk (default), per-file, per-file-parallel",
+    help="Generation mode: per-file (default), bulk, per-file-parallel",
   ),
 ) -> None:
   """Remove all artifacts and recreate .fsc/ from scratch."""
