@@ -3,7 +3,7 @@ from pathlib import Path
 
 import typer
 
-from fsc.config.loader import apply_cli_overrides
+from fsc.config.loader import CLIConfigOverrides, apply_cli_overrides
 from fsc.config.schemas import FSCConfig
 from fsc.utils.console import console
 from fsc.utils.fs import find_spec_files
@@ -49,7 +49,7 @@ def _confirm_destructive(yes: bool) -> None:
 def _do_init(
   force: bool,
   yes: bool,
-  cli_args: dict,
+  overrides: CLIConfigOverrides,
   target_dir: Path | None = None,
 ) -> None:
   root = Path(target_dir).resolve() if target_dir else Path.cwd()
@@ -79,7 +79,9 @@ def _do_init(
   fsc_dir.mkdir(parents=True, exist_ok=True)
 
   cfg = FSCConfig()
-  cfg = apply_cli_overrides(cfg, cli_args)
+
+  cfg = apply_cli_overrides(cfg, overrides)
+
   config_path.write_text(cfg.to_toml())
   console.print("[green]Created .fsc/config.toml[/green]")
 
@@ -133,7 +135,7 @@ def init_command(
 ) -> None:
   """Create .fsc/ directory with template config and prompt."""
 
-  cli_args = dict(
+  overrides = CLIConfigOverrides(
     extensions=extensions,
     exclude_dirs=exclude_dirs,
     exclude_files=exclude_files,
@@ -148,4 +150,4 @@ def init_command(
     generation_mode=gen_mode,
   )
 
-  _do_init(force, yes, cli_args, directory)
+  _do_init(force=force, yes=yes, overrides=overrides, target_dir=directory)

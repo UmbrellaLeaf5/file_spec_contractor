@@ -2,8 +2,8 @@ from pathlib import Path
 
 import tomllib
 
-from fsc.config.enums import GenerationMode
-from fsc.config.schemas import FSCConfig
+from fsc.config.enums import GenerationMode, OutputMode
+from fsc.config.schemas import CLIConfigOverrides, FSCConfig
 
 
 def _load_toml(path: Path) -> dict:
@@ -50,41 +50,41 @@ def load_merged_config(project_root: Path) -> FSCConfig:
   return FSCConfig.from_dict(cfg)
 
 
-def apply_cli_overrides(cfg: FSCConfig, cli_args: dict) -> FSCConfig:
-  if cli_args.get("extensions"):
-    cfg.project.extensions = cli_args["extensions"]
+def apply_cli_overrides(cfg: FSCConfig, overrides: CLIConfigOverrides) -> FSCConfig:
+  if overrides.extensions:
+    cfg.project.extensions = overrides.extensions
 
-  if cli_args.get("exclude_dirs"):
-    cfg.project.exclude_dirs = cli_args["exclude_dirs"]
+  if overrides.exclude_dirs:
+    cfg.project.exclude_dirs = overrides.exclude_dirs
 
-  if cli_args.get("exclude_files"):
-    cfg.project.exclude_files = cli_args["exclude_files"]
+  if overrides.exclude_files:
+    cfg.project.exclude_files = overrides.exclude_files
 
-  if cli_args.get("provider"):
-    cfg.api.provider = cli_args["provider"]
+  if overrides.provider:
+    cfg.api.provider = overrides.provider
 
-  if cli_args.get("model"):
-    cfg.api.model = cli_args["model"]
+  if overrides.model:
+    cfg.api.model = overrides.model
 
-  if cli_args.get("output_mode"):
-    cfg.output.output_mode = cli_args["output_mode"]
+  if overrides.output_mode:
+    cfg.output.output_mode = OutputMode(overrides.output_mode)
 
-  if cli_args.get("output_dir"):
-    cfg.output.output_dir = cli_args["output_dir"]
+  if overrides.output_dir:
+    cfg.output.output_dir = overrides.output_dir
 
-  if cli_args.get("batch_size") is not None:
-    cfg.output.batch_size = cli_args["batch_size"]
+  if overrides.batch_size:
+    cfg.output.batch_size = overrides.batch_size
 
-  if cli_args.get("prompt_file"):
-    cfg.prompt.file = cli_args["prompt_file"]
+  if overrides.prompt_file:
+    cfg.prompt.file = overrides.prompt_file
 
-  if cli_args.get("language"):
-    cfg.output.language = cli_args["language"]
+  if overrides.language:
+    cfg.output.language = overrides.language
 
-  if cli_args.get("concurrency") is not None:
-    cfg.runtime.concurrency = cli_args["concurrency"]
+  if overrides.concurrency:
+    cfg.runtime.concurrency = overrides.concurrency
 
-  if cli_args.get("generation_mode"):
-    cfg.runtime.generation_mode = GenerationMode(cli_args["generation_mode"])
+  if overrides.generation_mode:
+    cfg.runtime.generation_mode = GenerationMode(overrides.generation_mode)
 
   return cfg

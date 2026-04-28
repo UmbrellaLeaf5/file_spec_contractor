@@ -4,7 +4,7 @@ from pathlib import Path
 import typer
 
 from fsc.config.enums import GenerationMode
-from fsc.config.loader import apply_cli_overrides, load_merged_config
+from fsc.config.loader import CLIConfigOverrides, apply_cli_overrides, load_merged_config
 from fsc.providers.deepseek import DeepSeekProvider
 from fsc.providers.openrouter import OpenRouterProvider
 from fsc.spec.generator import generate_for_files
@@ -55,7 +55,7 @@ def generate_command(
   project_root = Path.cwd()
   cfg = load_merged_config(project_root)
 
-  cli_args = dict(
+  overrides = CLIConfigOverrides(
     extensions=extensions,
     exclude_dirs=exclude_dirs,
     exclude_files=exclude_files,
@@ -69,7 +69,7 @@ def generate_command(
     generation_mode=gen_mode,
   )
 
-  cfg = apply_cli_overrides(cfg, cli_args)
+  cfg = apply_cli_overrides(cfg, overrides)
 
   if verbose:
     console.log("Using configuration:")
@@ -104,6 +104,7 @@ def generate_command(
         "[red]DeepSeek API key not found. "
         "Use --api-key, set DEEPSEEK_API_KEY, or add to .env[/red]"
       )
+
       raise typer.Exit(code=2)
 
     provider_client = DeepSeekProvider(api_key=resolved)

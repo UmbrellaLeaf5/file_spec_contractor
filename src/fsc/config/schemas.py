@@ -3,6 +3,23 @@ from pydantic import BaseModel, Field, field_validator
 from fsc.config.enums import GenerationMode, OutputMode
 
 
+class CLIConfigOverrides(BaseModel):
+  """Typed container for CLI flag overrides applied to FSCConfig."""
+
+  extensions: list[str] | None = None
+  exclude_dirs: list[str] | None = None
+  exclude_files: list[str] | None = None
+  provider: str | None = None
+  model: str | None = None
+  output_mode: str | None = None
+  output_dir: str | None = None
+  batch_size: int | None = None
+  prompt_file: str | None = None
+  language: str | None = None
+  concurrency: int | None = None
+  generation_mode: str | None = None
+
+
 class ProjectConfig(BaseModel):
   extensions: list[str] = Field(default_factory=lambda: [".py"])
   exclude_dirs: list[str] = Field(

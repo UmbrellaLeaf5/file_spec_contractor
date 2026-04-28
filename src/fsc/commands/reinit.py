@@ -3,6 +3,7 @@ from pathlib import Path
 import typer
 
 from fsc.commands.init import _do_init
+from fsc.config.loader import CLIConfigOverrides
 
 
 def reinit_command(
@@ -21,6 +22,9 @@ def reinit_command(
   ),
   output_mode: str | None = typer.Option(None, "--output-mode"),
   output_dir: Path | None = typer.Option(None, "--output-dir"),
+  batch_size: int | None = typer.Option(
+    None, "--batch-size", help="Files per batch folder (batch output mode)"
+  ),
   prompt_file: Path | None = typer.Option(None, "--prompt-file"),
   language: str | None = typer.Option(None, "--language"),
   concurrency: int | None = typer.Option(
@@ -34,7 +38,7 @@ def reinit_command(
 ) -> None:
   """Remove all artifacts and recreate .fsc/ from scratch."""
 
-  cli_args = dict(
+  overrides = CLIConfigOverrides(
     extensions=extensions,
     exclude_dirs=exclude_dirs,
     exclude_files=exclude_files,
@@ -42,10 +46,11 @@ def reinit_command(
     model=model,
     output_mode=output_mode,
     output_dir=str(output_dir) if output_dir else None,
+    batch_size=batch_size,
     prompt_file=str(prompt_file) if prompt_file else None,
     language=language,
     concurrency=concurrency,
     generation_mode=gen_mode,
   )
 
-  _do_init(True, yes, cli_args, directory)
+  _do_init(force=True, yes=yes, overrides=overrides, target_dir=directory)
