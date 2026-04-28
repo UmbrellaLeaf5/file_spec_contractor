@@ -51,7 +51,7 @@ app.command(
     "Modes:\n"
     "  bulk (default) - all files in a single LLM request for consistent,\n"
     "    cross-referenced specifications.\n"
-    "  per-file (--force-per-file) - each file individually, sequential or\n"
+    "  per-file (--gen-mode per-file) - each file individually, sequential or\n"
     "    parallel (-c N).\n\n"
     "Output modes:\n"
     "  mirror (default) - preserve directory structure under output directory.\n"
@@ -62,7 +62,7 @@ app.command(
     "  fsc generate\n"
     "  fsc generate --file src/machine.py\n"
     "  fsc generate --extensions .py .kt\n"
-    "  fsc generate --force-per-file -c 5\n"
+    "  fsc generate --gen-mode per-file -c 5\n"
     "  fsc generate --dry-run --verbose\n"
     "  fsc generate --output-mode adjacent"
   ),

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fsc.config.schema import FSCConfig
+from fsc.config.enums import OutputMode
 from fsc.utils.fs import (
   _encode_path,
   is_spec_fresh,
@@ -14,7 +15,7 @@ def test_resolve_output_path_adjacent(tmp_path: Path):
   src.parent.mkdir(parents=True, exist_ok=True)
 
   cfg = FSCConfig()
-  cfg.output.output_mode = "adjacent"
+  cfg.output.output_mode = OutputMode.adjacent
 
   result = resolve_output_path(src, tmp_path, cfg)
   assert result == tmp_path / "src" / "app.py.fsc.md"
@@ -25,7 +26,7 @@ def test_resolve_output_path_mirror(tmp_path: Path):
   src.parent.mkdir(parents=True, exist_ok=True)
 
   cfg = FSCConfig()
-  cfg.output.output_mode = "mirror"
+  cfg.output.output_mode = OutputMode.mirror
   cfg.output.output_dir = str(tmp_path / ".fsc" / "specs")
 
   result = resolve_output_path(src, tmp_path, cfg)
@@ -37,7 +38,7 @@ def test_resolve_output_path_batch(tmp_path: Path):
   src.parent.mkdir(parents=True, exist_ok=True)
 
   cfg = FSCConfig()
-  cfg.output.output_mode = "batch"
+  cfg.output.output_mode = OutputMode.batch
   cfg.output.output_dir = str(tmp_path / ".fsc" / "batches")
   cfg.output.batch_size = 50
 
@@ -47,7 +48,7 @@ def test_resolve_output_path_batch(tmp_path: Path):
 
 def test_resolve_output_path_batch_custom_size(tmp_path: Path):
   cfg = FSCConfig()
-  cfg.output.output_mode = "batch"
+  cfg.output.output_mode = OutputMode.batch
   cfg.output.output_dir = str(tmp_path / ".fsc" / "batches")
   cfg.output.batch_size = 10
 

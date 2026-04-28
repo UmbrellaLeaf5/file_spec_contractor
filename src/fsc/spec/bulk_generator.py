@@ -14,9 +14,16 @@ _SPEC_MARKER = re.compile(r"## SPEC:\s*(.+?)\s*\n(.*?)(?=\n## SPEC:|\Z)", re.DOT
 def _build_batch_prompt(files: dict[str, str], language: str) -> str:
   prompt = (
     "Generate specifications for ALL files listed below. "
-    "For each file, start with the marker `## SPEC: path/to/file.ext`, "
+    "For each file, start with the marker `## SPEC: path/to/file.ext` "
+    "followed by a mandatory header `# path/to/file.ext` on the next line, "
     "then write the specification in the standard format. "
     "Separate specifications with `---`.\n\n"
+    "Expected format for EACH file:\n\n"
+    "## SPEC: src/app.py\n"
+    "# src/app.py\n\n"
+    "## Purpose\n"
+    "...\n"
+    "---\n\n"
   )
 
   for rel_path in sorted(files):
@@ -51,17 +58,17 @@ def generate_bulk(
   project_root: Path,
   src_paths: dict[str, Path],
   dry_run: bool = False,
-) -> list[Path]:
+) -> tuple[list[Path], set[str]]:
   if not src_paths:
     console.print("[yellow]Batch skipped: no valid source paths.[/yellow]")
-    return []
+    return [], set()
 
   if dry_run:
     console.print(
       "[yellow]Bulk mode is not compatible with --dry-run. "
       "Switching to per-file dry run.[/yellow]"
     )
-    return []
+    return [], set()
 
   src_paths_norm = {k.replace("\\", "/"): v for k, v in src_paths.items()}
 
@@ -70,12 +77,17 @@ def generate_bulk(
   console.log(f"Generating specs for {count} files in bulk mode ...")
 
   batch_prompt = _build_batch_prompt(files, cfg.output.language)
-  response = provider.generate(system_prompt, batch_prompt)
+
+  gen_kwargs = {}
+  if cfg.api.max_tokens > 0:
+    gen_kwargs["max_tokens"] = cfg.api.max_tokens
+
+  response = provider.generate(system_prompt, batch_prompt, **gen_kwargs)
   parsed = _parse_batch_response(response)
 
   if not parsed:
     console.print("[yellow]Batch response could not be parsed, will fall back.[/yellow]")
-    return []
+    return [], set()
 
   results: list[Path] = []
   file_index = 0
@@ -98,4 +110,9 @@ def generate_bulk(
     console.log(f"  Saved {rel_path}")
     results.append(out_path)
 
-  return results
+  missing = set(files) - set(parsed)
+
+  if missing:
+    console.log(f"Bulk missed {len(missing)} files, will retry them.")
+
+  return results, missing

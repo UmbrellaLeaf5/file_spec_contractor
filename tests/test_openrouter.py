@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 from fsc.config.schema import FSCConfig
+from fsc.config.enums import GenerationMode
 from fsc.prompt_loader import load_prompt
 from fsc.providers.openrouter import OpenRouterProvider
 from fsc.spec.generator import generate_for_files
@@ -47,7 +48,7 @@ def test_openrouter_generate_single_file(tmp_path: Path):
     cfg,
     project_root=tmp_path,
     concurrency=1,
-    force_per_file=True,
+    gen_mode=GenerationMode.per_file,
   )
 
   assert len(results) == 1
@@ -82,7 +83,7 @@ def test_openrouter_generate_batch(tmp_path: Path):
     cfg,
     project_root=tmp_path,
     concurrency=1,
-    force_per_file=False,
+    gen_mode=GenerationMode.bulk,
   )
 
   assert len(results) == 2  # noqa: PLR2004

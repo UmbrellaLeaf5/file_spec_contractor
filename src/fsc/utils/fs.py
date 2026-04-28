@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from fsc.config.schema import FSCConfig
+from fsc.config.enums import OutputMode
 
 
 def scan_files(
@@ -46,7 +47,7 @@ def resolve_output_path(
   cfg: FSCConfig,
   file_index: int | None = None,
 ) -> Path:
-  if cfg.output.output_mode == "adjacent":
+  if cfg.output.output_mode == OutputMode.adjacent:
     return src_path.with_name(src_path.name + ".fsc.md")
 
   try:
@@ -55,7 +56,7 @@ def resolve_output_path(
   except ValueError:
     rel = src_path
 
-  if cfg.output.output_mode == "batch":
+  if cfg.output.output_mode == OutputMode.batch:
     if file_index is None:
       file_index = 0
 

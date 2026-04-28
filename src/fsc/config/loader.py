@@ -2,6 +2,7 @@ from pathlib import Path
 
 import tomllib
 
+from fsc.config.enums import GenerationMode
 from fsc.config.schema import FSCConfig
 
 
@@ -83,7 +84,7 @@ def apply_cli_overrides(cfg: FSCConfig, cli_args: dict) -> FSCConfig:
   if cli_args.get("concurrency") is not None:
     cfg.runtime.concurrency = cli_args["concurrency"]
 
-  if cli_args.get("force_per_file") is not None:
-    cfg.runtime.force_per_file = cli_args["force_per_file"]
+  if cli_args.get("generation_mode"):
+    cfg.runtime.generation_mode = GenerationMode(cli_args["generation_mode"])
 
   return cfg

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 from fsc.main import app
+from fsc.config.enums import GenerationMode
 from fsc.utils.env import load_dotenv
 from typer.testing import CliRunner
 
@@ -37,7 +38,7 @@ def test_full_pipeline_dry_run(tmp_path: Path, monkeypatch):
   )
 
   assert "Found 1 files" in result.stdout
-  assert "bulk" in result.stdout.lower()
+  assert GenerationMode.bulk.value in result.stdout.lower()
 
 
 def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
@@ -56,7 +57,7 @@ def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
 
   first = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--force-per-file"],
+    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert first.exit_code == 0
@@ -65,7 +66,7 @@ def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
 
   second = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--force-per-file"],
+    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert second.exit_code == 0
@@ -76,12 +77,14 @@ def test_full_pipeline_force(tmp_path: Path, monkeypatch):
   api_key = _get_api_key()
 
   if not api_key:
+    import pytest
     pytest.skip("OPEN_ROUTER_API_KEY not set")
 
   monkeypatch.chdir(tmp_path)
   monkeypatch.setenv("OPEN_ROUTER_API_KEY", api_key)
 
-  (tmp_path / "app.py").write_text(
+  src = tmp_path / "app.py"
+  src.write_text(
     'def greet(name: str) -> str:\n    return f"Hello, {name}!"\n'
   )
 
@@ -89,14 +92,28 @@ def test_full_pipeline_force(tmp_path: Path, monkeypatch):
 
   first = runner.invoke(
     app,
-    ["generate", "--file", str(tmp_path / "app.py"), "--force-per-file"],
+    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert first.exit_code == 0
 
   forced = runner.invoke(
     app,
-    ["generate", "--file", str(tmp_path / "app.py"), "--force-per-file", "-f"],
+    ["generate", "--file", str(src), "--gen-mode", "per-file", "-f"],
+  )
+
+  runner.invoke(app, ["init", "-y"])
+
+  first = runner.invoke(
+    app,
+    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
+  )
+
+  assert first.exit_code == 0
+
+  forced = runner.invoke(
+    app,
+    ["generate", "--file", str(tmp_path / "app.py"), "--gen-mode", "per-file", "-f"],
   )
 
   assert forced.exit_code == 0
@@ -109,7 +126,7 @@ def test_generate_help_shows_batch_mode(tmp_path: Path, monkeypatch):
   result = runner.invoke(app, ["generate", "--help"])
 
   assert result.exit_code == 0
-  assert "bulk" in result.stdout.lower()
+  assert GenerationMode.bulk.value in result.stdout.lower()
 
 
 def test_init_help_shows_examples(tmp_path: Path, monkeypatch):

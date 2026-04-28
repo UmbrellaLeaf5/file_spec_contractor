@@ -4,6 +4,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+from fsc.config.enums import GenerationMode
 from fsc.config.loader import apply_cli_overrides, load_merged_config
 from fsc.prompt_loader import load_prompt, resolve_prompt_path
 from fsc.providers.deepseek import DeepSeekProvider
@@ -38,8 +39,10 @@ def generate_command(
   concurrency: int | None = typer.Option(
     None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
   ),
-  force_per_file: bool | None = typer.Option(
-    None, "--force-per-file", help="Force per-file generation instead of batch"
+  gen_mode: str | None = typer.Option(
+    None,
+    "--gen-mode",
+    help="Generation mode: bulk (default), per-file, per-file-parallel",
   ),
   api_key: str | None = typer.Option(
     None, "--api-key", help="API key for the selected provider"
@@ -66,7 +69,7 @@ def generate_command(
     batch_size=batch_size,
     prompt_file=str(prompt_file) if prompt_file else None,
     concurrency=concurrency,
-    force_per_file=force_per_file,
+    generation_mode=gen_mode,
   )
 
   cfg = apply_cli_overrides(cfg, cli_args)
@@ -146,18 +149,26 @@ def generate_command(
     console.print("[yellow]No files found to process.[/yellow]")
     raise typer.Exit()
 
-  mode = "per-file" if cfg.runtime.force_per_file else "bulk"
-
-  if dry_run and not cfg.runtime.force_per_file:
+  if dry_run and cfg.runtime.generation_mode == GenerationMode.bulk:
     console.print(
       "[yellow]Bulk mode is not compatible with --dry-run. "
       "Switching to per-file dry run.[/yellow]"
     )
-    cfg.runtime.force_per_file = True
-    mode = "per-file"
+    cfg.runtime.generation_mode = GenerationMode.per_file
+
+  if (
+    cfg.runtime.generation_mode == GenerationMode.per_file_parallel
+    and concurrency is None
+  ):
+    console.print(
+      "[red]per-file-parallel generation mode requires --concurrency / -c flag.[/red]"
+    )
+
+    raise typer.Exit(code=2)
 
   console.log(
-    f"Found {len(targets)} files. Mode: {mode}. Concurrency: {cfg.runtime.concurrency}."
+    f"Found {len(targets)} files. Mode: {cfg.runtime.generation_mode.value}."
+    f" Concurrency: {cfg.runtime.concurrency}."
   )
 
   try:
@@ -169,7 +180,7 @@ def generate_command(
       project_root=project_root,
       dry_run=dry_run,
       concurrency=cfg.runtime.concurrency,
-      force_per_file=cfg.runtime.force_per_file,
+      gen_mode=cfg.runtime.generation_mode,
       force=force,
     )
 

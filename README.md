@@ -103,7 +103,7 @@ fsc generate --file src/machine.py
 fsc generate --extensions .py .kt
 
 # Force per-file mode with parallel requests
-fsc generate --force-per-file -c 5
+fsc generate --gen-mode per-file -c 5
 
 # Preview what would be generated (no files written)
 fsc generate --dry-run --verbose
@@ -119,9 +119,9 @@ fsc --version
 
 | Mode                    | Flag                    | Behaviour                                                                       |
 | ----------------------- | ----------------------- | ------------------------------------------------------------------------------- |
-| **bulk**                | _(default)_             | All files in a single LLM request. Consistent, cross-referenced specifications. |
-| **per-file sequential** | `--force-per-file`      | Each file separately, one at a time.                                            |
-| **per-file parallel**   | `--force-per-file -c N` | N files simultaneously via thread pool. Fastest for large projects.             |
+| **bulk**                | _(default)_            | All files in a single LLM request. Consistent, cross-referenced specifications. |
+| **per-file**            | `--gen-mode per-file`  | Each file separately, one at a time.                                            |
+| **per-file parallel**   | `-c N`                 | N files simultaneously via thread pool. Fastest for large projects.             |
 
 If bulk mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
 
@@ -155,8 +155,8 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--batch-size`        | Files per folder in batch mode (default: `50`)                     |
 | `--prompt-file`       | Custom system prompt file                                          |
 | `--language`          | Prompt language: `en` (default) or `ru` (`init`/`reinit` only)     |
-| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`)                 |
-| `--force-per-file`    | Force per-file generation instead of bulk                          |
+| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`) |
+| `--gen-mode` | Generation mode: `bulk` (default), `per-file`, `per-file-parallel` |
 | `-f`, `--force`       | Regenerate all specs, ignoring cache                               |
 | `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
 | `--verbose`           | Detailed output (`generate` only)                                  |
@@ -209,7 +209,7 @@ file = ".fsc/PROMPT.md"
 # Generation runtime settings
 [runtime]
 concurrency = 3            # parallel threads for per-file mode
-force_per_file = false     # skip bulk mode, use per-file
+generation_mode = "bulk"    # "bulk", "per-file", or "per-file-parallel"
 ```
 
 ### API Key

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from fsc.config.enums import GenerationMode, OutputMode
 from fsc.config.schema import FSCConfig
 from fsc.providers.base import BaseProvider
 from fsc.spec.bulk_generator import generate_bulk
@@ -13,8 +14,6 @@ from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
 console = Console(log_path=False)
 
-_OUTPUT_MODES = ("mirror", "adjacent", "batch")
-
 
 def _find_fresh_spec_in_any_mode(
   src_path: Path, project_root: Path, cfg: FSCConfig
@@ -22,7 +21,7 @@ def _find_fresh_spec_in_any_mode(
   src_mtime = src_path.stat().st_mtime
   original_mode = cfg.output.output_mode
 
-  for mode in _OUTPUT_MODES:
+  for mode in OutputMode:
     cfg.output.output_mode = mode
     spec = resolve_output_path(src_path, project_root, cfg)
 
@@ -95,14 +94,15 @@ def generate_for_files(
   project_root: Path,
   dry_run: bool = False,
   concurrency: int | None = None,
-  force_per_file: bool | None = None,
+  gen_mode: GenerationMode | None = None,
   force: bool = False,
 ) -> list[Path]:
   if concurrency is None:
     concurrency = cfg.runtime.concurrency
 
-  if force_per_file is None:
-    force_per_file = cfg.runtime.force_per_file
+  if gen_mode is None:
+    gen_mode = cfg.runtime.generation_mode
+
   file_data: dict[str, str] = {}
   src_paths: dict[str, Path] = {}
   skipped = 0
@@ -152,12 +152,10 @@ def generate_for_files(
   sorted_paths = sorted(file_data)
   index_map = {path: i for i, path in enumerate(sorted_paths)}
 
-  if not force_per_file:
-    mode = "bulk"
-
+  if gen_mode == GenerationMode.bulk:
     if file_count > 0:
       try:
-        results = generate_bulk(
+        bulk_results, missing = generate_bulk(
           file_data, prompt_template, provider, cfg, project_root, src_paths, dry_run
         )
 
@@ -165,16 +163,57 @@ def generate_for_files(
         console.print("\n[yellow]Bulk generation interrupted.[/yellow]")
         return []
 
-      if results:
-        console.print(f"[green]Done. Processed {len(results)} files.[/green]")
+      if missing:
+        retry_data = {k: file_data[k] for k in sorted(missing)}
+        retry_paths = {k: src_paths[k] for k in sorted(missing)}
+
+        console.log(f"Retrying {len(retry_data)} missed files in per-file mode ...")
+
+        retry_results = []
+
+        for rel_path, code in retry_data.items():
+          try:
+            out = _process_one_file(
+              retry_paths[rel_path],
+              rel_path,
+              code,
+              cfg.output.language,
+              prompt_template,
+              provider,
+              cfg,
+              project_root,
+              dry_run,
+              index_map.get(rel_path, 0),
+            )
+
+            if out is not None:
+              retry_results.append(out)
+
+          except Exception as e:
+            console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+
+        results = bulk_results + retry_results
+
+        if len(results) < file_count:
+          console.print(
+            f"[yellow]Could not generate specs for "
+            f"{file_count - len(results)} files.[/yellow]"
+          )
+
+        console.print(
+          f"[green]Done. Processed {len(results)} files. "
+          f"({len(bulk_results)} from bulk + {len(retry_results)} from retry)[/green]"
+        )
+
         return results
+
+      if bulk_results:
+        console.print(f"[green]Done. Processed {len(bulk_results)} files.[/green]")
+        return bulk_results
 
       console.print("[yellow]Falling back to per-file generation.[/yellow]")
 
-  else:
-    mode = "per-file"
-
-  console.log(f"Processing {file_count} files in {mode} mode ...")
+  console.log(f"Processing {file_count} files in {gen_mode.value} mode ...")
 
   if concurrency > 1:
     results: list[Path] = []

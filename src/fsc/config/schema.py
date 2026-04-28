@@ -1,6 +1,6 @@
-from typing import Literal
-
 from pydantic import BaseModel, Field, field_validator
+
+from fsc.config.enums import GenerationMode, OutputMode
 
 
 class ProjectConfig(BaseModel):
@@ -22,7 +22,7 @@ class ProjectConfig(BaseModel):
 
 class OutputConfig(BaseModel):
   language: str = "en"
-  output_mode: Literal["mirror", "adjacent", "batch"] = "mirror"
+  output_mode: OutputMode = OutputMode.mirror
   output_dir: str = ".fsc/specs"
   batch_size: int = Field(default=50, gt=0)
 
@@ -30,6 +30,7 @@ class OutputConfig(BaseModel):
 class ApiConfig(BaseModel):
   provider: str = "openrouter"
   model: str = ""
+  max_tokens: int = Field(default=0, ge=0)
 
 
 class PromptConfig(BaseModel):
@@ -38,7 +39,7 @@ class PromptConfig(BaseModel):
 
 class RuntimeConfig(BaseModel):
   concurrency: int = Field(default=3, ge=1)
-  force_per_file: bool = False
+  generation_mode: GenerationMode = GenerationMode.bulk
 
 
 class FSCConfig(BaseModel):
@@ -56,7 +57,7 @@ class FSCConfig(BaseModel):
     return self.model_dump()
 
   def to_toml(self) -> str:
-    d = self.to_dict()
+    d = self.model_dump(mode="json")
     parts = []
 
     for section, fields in d.items():

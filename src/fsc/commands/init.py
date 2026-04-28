@@ -128,8 +128,8 @@ def init_command(
   concurrency: int | None = typer.Option(
     None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
   ),
-  force_per_file: bool | None = typer.Option(
-    None, "--force-per-file", help="Force per-file generation instead of batch"
+  gen_mode: str | None = typer.Option(
+    None, "--gen-mode", help="Generation mode: bulk (default), per-file, per-file-parallel"
   ),
 ) -> None:
   """Create .fsc/ directory with template config and prompt."""
@@ -146,7 +146,7 @@ def init_command(
     prompt_file=str(prompt_file) if prompt_file else None,
     language=language,
     concurrency=concurrency,
-    force_per_file=force_per_file,
+    generation_mode=gen_mode,
   )
 
   _do_init(force, yes, cli_args, directory)

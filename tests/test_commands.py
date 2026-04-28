@@ -46,6 +46,20 @@ def test_generate_zero_concurrency(tmp_path: Path, monkeypatch):
   assert result.exit_code != 0
 
 
+def test_generate_parallel_without_concurrency(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+  monkeypatch.setenv("OPEN_ROUTER_API_KEY", "test-key")
+
+  (tmp_path / "app.py").write_text("x = 1")
+
+  runner.invoke(app, ["init", "-y"])
+
+  result = runner.invoke(app, ["generate", "--gen-mode", "per-file-parallel"])
+
+  assert result.exit_code != 0
+  assert "requires --concurrency" in result.stdout
+
+
 def test_init_twice_without_yes(tmp_path: Path, monkeypatch):
   monkeypatch.chdir(tmp_path)
 
