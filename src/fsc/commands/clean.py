@@ -3,16 +3,16 @@ from pathlib import Path
 
 import typer
 
+from fsc.commands._options import CliTyperArguments, CliTyperOptions
 from fsc.config.loader import load_merged_config
 from fsc.utils.console import console
 from fsc.utils.fs import find_spec_files
 
 
 def clean_command(
-  directory: Path | None = typer.Argument(
-    None, help="Target directory (default: current directory)"
-  ),
-  yes: bool = typer.Option(False, "-y", "--yes", help="Skip confirmation prompt"),
+  directory: Path | None = CliTyperArguments.DIRECTORY,
+  # bool flags:
+  yes: bool = CliTyperOptions.YES,
 ) -> None:
   """Remove all generated *.fsc.md files and output directory, keep .fsc/ config."""
 

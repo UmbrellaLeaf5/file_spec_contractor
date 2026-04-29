@@ -1,18 +1,16 @@
 import shutil
 from pathlib import Path
 
-import typer
-
+from fsc.commands._options import CliTyperArguments, CliTyperOptions
 from fsc.commands.init import _confirm_destructive
 from fsc.utils.console import console
 from fsc.utils.fs import find_spec_files
 
 
 def deinit_command(
-  directory: Path | None = typer.Argument(
-    None, help="Target directory (default: current directory)"
-  ),
-  yes: bool = typer.Option(False, "-y", "--yes", help="Skip confirmation prompts"),
+  directory: Path | None = CliTyperArguments.DIRECTORY,
+  # bool flags:
+  yes: bool = CliTyperOptions.YES,
 ) -> None:
   """Remove .fsc/ and all generated *.fsc.md files from project."""
 

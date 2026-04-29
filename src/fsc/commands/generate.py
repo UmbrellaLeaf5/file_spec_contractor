@@ -3,6 +3,7 @@ from pathlib import Path
 
 import typer
 
+from fsc.commands._options import CliTyperOptions
 from fsc.config.enums import GenerationMode
 from fsc.config.loader import CLIConfigOverrides, apply_cli_overrides, load_merged_config
 from fsc.providers.deepseek import DeepSeekProvider
@@ -15,40 +16,27 @@ from fsc.utils.prompt_loader import load_prompt, resolve_prompt_path
 
 
 def generate_command(
-  files: list[Path] | None = typer.Option(
-    None, "--file", help="Files to generate specs for"
-  ),
-  extensions: list[str] | None = typer.Option(
-    None, "--extensions", help="File extensions to include"
-  ),
-  exclude_dirs: list[str] | None = typer.Option(None, "--exclude-dirs"),
-  exclude_files: list[str] | None = typer.Option(None, "--exclude-files"),
-  provider: str | None = typer.Option(None, "--provider"),
-  model: str | None = typer.Option(
-    None, "--model", help="Model name for the selected provider"
-  ),
-  output_mode: str | None = typer.Option(None, "--output-mode"),
-  output_dir: Path | None = typer.Option(None, "--output-dir"),
-  batch_size: int | None = typer.Option(
-    None, "--batch-size", help="Files per batch folder (batch output mode)"
-  ),
-  prompt_file: Path | None = typer.Option(None, "--prompt-file"),
-  concurrency: int | None = typer.Option(
-    None, "-c", "--concurrency", help="Parallel requests for per-file mode (default: 3)"
-  ),
-  gen_mode: str | None = typer.Option(
-    None,
-    "--gen-mode",
-    help="Generation mode: per-file (default), bulk, per-file-parallel",
-  ),
-  api_key: str | None = typer.Option(
-    None, "--api-key", help="API key for the selected provider"
-  ),
-  force: bool = typer.Option(
-    False, "-f", "--force", help="Regenerate all specs, ignoring cache"
-  ),
-  dry_run: bool = typer.Option(False, "--dry-run"),
-  verbose: bool = typer.Option(False, "--verbose"),
+  # bool flags:
+  dry_run: bool = CliTyperOptions.DRY_RUN,
+  force: bool = CliTyperOptions.FORCE,
+  verbose: bool = CliTyperOptions.VERBOSE,
+  # list flags:
+  extensions: list[str] | None = CliTyperOptions.EXTENSIONS,
+  exclude_dirs: list[str] | None = CliTyperOptions.EXCLUDE_DIRS,
+  exclude_files: list[str] | None = CliTyperOptions.EXCLUDE_FILES,
+  files: list[Path] | None = CliTyperOptions.FILES,
+  # path flags:
+  output_dir: Path | None = CliTyperOptions.OUTPUT_DIR,
+  prompt_file: Path | None = CliTyperOptions.PROMPT_FILE,
+  # str flags:
+  api_key: str | None = CliTyperOptions.API_KEY,
+  gen_mode: str | None = CliTyperOptions.GEN_MODE,
+  model: str | None = CliTyperOptions.MODEL,
+  provider: str | None = CliTyperOptions.PROVIDER,
+  output_mode: str | None = CliTyperOptions.OUTPUT_MODE,
+  # int flags:
+  batch_size: int | None = CliTyperOptions.BATCH_SIZE,
+  concurrency: int | None = CliTyperOptions.CONCURRENCY,
 ) -> None:
   """Generate .fsc.md specifications for project files."""
 

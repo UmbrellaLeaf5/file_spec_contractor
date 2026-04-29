@@ -1,7 +1,8 @@
+import tomllib
 from pathlib import Path
 
 import pytest
-import tomllib
+
 from fsc.config.loader import load_merged_config
 
 

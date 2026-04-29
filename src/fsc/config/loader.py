@@ -1,6 +1,5 @@
-from pathlib import Path
-
 import tomllib
+from pathlib import Path
 
 from fsc.config.enums import GenerationMode, OutputMode
 from fsc.config.schemas import CLIConfigOverrides, FSCConfig

@@ -3,10 +3,11 @@ import time
 from pathlib import Path
 
 import pytest
+from typer.testing import CliRunner
+
 from fsc.config.enums import GenerationMode
 from fsc.main import app
 from fsc.utils.env import load_dotenv
-from typer.testing import CliRunner
 
 
 runner = CliRunner()
@@ -34,7 +35,7 @@ def test_full_pipeline_dry_run(tmp_path: Path, monkeypatch):
 
   result = runner.invoke(
     app,
-    ["generate", "--file", str(tmp_path / "app.py"), "--dry-run", "--verbose"],
+    ["generate", "--files", str(tmp_path / "app.py"), "--dry-run", "--verbose"],
   )
 
   assert "Found 1 files" in result.stdout
@@ -57,7 +58,7 @@ def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
 
   first = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
+    ["generate", "--files", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert first.exit_code == 0
@@ -66,7 +67,7 @@ def test_full_pipeline_cache(tmp_path: Path, monkeypatch):
 
   second = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
+    ["generate", "--files", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert second.exit_code == 0
@@ -89,28 +90,28 @@ def test_full_pipeline_force(tmp_path: Path, monkeypatch):
 
   first = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
+    ["generate", "--files", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert first.exit_code == 0
 
   forced = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--gen-mode", "per-file", "-f"],
+    ["generate", "--files", str(src), "--gen-mode", "per-file", "-f"],
   )
 
   runner.invoke(app, ["init", "-y"])
 
   first = runner.invoke(
     app,
-    ["generate", "--file", str(src), "--gen-mode", GenerationMode.per_file.value],
+    ["generate", "--files", str(src), "--gen-mode", GenerationMode.per_file.value],
   )
 
   assert first.exit_code == 0
 
   forced = runner.invoke(
     app,
-    ["generate", "--file", str(tmp_path / "app.py"), "--gen-mode", "per-file", "-f"],
+    ["generate", "--files", str(tmp_path / "app.py"), "--gen-mode", "per-file", "-f"],
   )
 
   assert forced.exit_code == 0

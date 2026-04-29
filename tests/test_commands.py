@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from fsc.main import app
 from typer.testing import CliRunner
+
+from fsc.main import app
 
 
 runner = CliRunner()
@@ -24,7 +25,7 @@ def test_generate_missing_api_key(tmp_path: Path, monkeypatch):
 
   runner.invoke(app, ["init", "-y"])
 
-  result = runner.invoke(app, ["generate", "--file", str(tmp_path / "app.py")])
+  result = runner.invoke(app, ["generate", "--files", str(tmp_path / "app.py")])
 
   assert result.exit_code != 0
   assert "API key not found" in result.stdout

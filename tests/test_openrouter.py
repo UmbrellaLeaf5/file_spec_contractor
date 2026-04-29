@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
+
 from fsc.config.enums import GenerationMode
 from fsc.config.schemas import FSCConfig
 from fsc.providers.openrouter import OpenRouterProvider
