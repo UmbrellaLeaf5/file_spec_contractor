@@ -18,6 +18,7 @@ def generate_command(
   # bool flags:
   dry_run: bool = CliTyperOptions.DRY_RUN,
   force: bool = CliTyperOptions.FORCE,
+  no_progress: bool = CliTyperOptions.NO_PROGRESS,
   verbose: bool = CliTyperOptions.VERBOSE,
   # list flags:
   extensions: list[str] | None = CliTyperOptions.EXTENSIONS,
@@ -54,6 +55,7 @@ def generate_command(
     prompt_file=str(prompt_file) if prompt_file else None,
     concurrency=concurrency,
     generation_mode=gen_mode,
+    no_progress=no_progress,
   )
 
   cfg = apply_cli_overrides(cfg, overrides)
@@ -125,7 +127,7 @@ def generate_command(
 
   if not dry_run and cfg.runtime.generation_mode == GenerationMode.bulk:
     console.print(
-      "[yellow]Warning: bulk mode can be unreliable — models may skip files, "
+      "[yellow]Warning: bulk mode can be unreliable - models may skip files, "
       "sections, or prompt instructions. Per-file mode is recommended.[/yellow]"
     )
 

@@ -11,6 +11,7 @@ from fsc.providers.base import BaseProvider
 from fsc.spec.bulk_generator import generate_bulk
 from fsc.utils.console import console
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
+from fsc.utils.progress import make_file_progress
 
 
 def _find_fresh_spec_in_any_mode(
@@ -85,6 +86,223 @@ def _process_one_file(
   return out_path
 
 
+def _try_process(
+  rel_path: str,
+  code: str,
+  src_paths: dict[str, Path],
+  cfg: FSCConfig,
+  prompt_template: str,
+  provider: BaseProvider,
+  project_root: Path,
+  dry_run: bool,
+  index_map: dict[str, int],
+  results: list[Path],
+) -> None:
+  """Call _process_one_file with the standard argument set and collect result."""
+
+  try:
+    out = _process_one_file(
+      src_paths[rel_path],
+      rel_path,
+      code,
+      cfg.output.language,
+      prompt_template,
+      provider,
+      cfg,
+      project_root,
+      dry_run,
+      index_map.get(rel_path, 0),
+    )
+
+    if out is not None:
+      results.append(out)
+
+  except Exception as e:
+    console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+
+
+def _run_sequential(
+  data: dict[str, str],
+  src_paths: dict[str, Path],
+  cfg: FSCConfig,
+  prompt_template: str,
+  provider: BaseProvider,
+  project_root: Path,
+  dry_run: bool,
+  index_map: dict[str, int],
+  show_progress: bool,
+  description: str = "Generating specs",
+) -> list[Path]:
+  """Process files one-by-one, optionally showing a progress bar."""
+  results: list[Path] = []
+
+  if show_progress:
+    with make_file_progress(len(data), description) as progress:
+      task = progress.add_task("", total=len(data))
+
+      try:
+        for rel_path, code in data.items():
+          progress.update(task, description=f"Processing {rel_path}")
+          _try_process(
+            rel_path,
+            code,
+            src_paths,
+            cfg,
+            prompt_template,
+            provider,
+            project_root,
+            dry_run,
+            index_map,
+            results,
+          )
+          progress.update(task, advance=1)
+
+      except KeyboardInterrupt:
+        return results
+
+  else:
+    console.log(f"Processing {len(data)} files ...")
+
+    try:
+      for rel_path, code in data.items():
+        _try_process(
+          rel_path,
+          code,
+          src_paths,
+          cfg,
+          prompt_template,
+          provider,
+          project_root,
+          dry_run,
+          index_map,
+          results,
+        )
+
+    except KeyboardInterrupt:
+      return results
+
+  return results
+
+
+def _submit_futures(
+  executor: ThreadPoolExecutor,
+  data: dict[str, str],
+  src_paths: dict[str, Path],
+  cfg: FSCConfig,
+  prompt_template: str,
+  provider: BaseProvider,
+  project_root: Path,
+  dry_run: bool,
+  index_map: dict[str, int],
+) -> dict:
+  futures = {}
+
+  for rel_path, code in data.items():
+    future = executor.submit(
+      _process_one_file,
+      src_paths[rel_path],
+      rel_path,
+      code,
+      cfg.output.language,
+      prompt_template,
+      provider,
+      cfg,
+      project_root,
+      dry_run,
+      index_map[rel_path],
+    )
+
+    futures[future] = rel_path
+
+  return futures
+
+
+def _collect_future_result(future, rel_path, results) -> None:
+  """Get result from a completed future and append to results if valid."""
+  try:
+    out = future.result()
+
+    if out is not None:
+      results.append(out)
+
+  except Exception as e:
+    console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+
+
+def _run_parallel(
+  data: dict[str, str],
+  src_paths: dict[str, Path],
+  cfg: FSCConfig,
+  prompt_template: str,
+  provider: BaseProvider,
+  project_root: Path,
+  dry_run: bool,
+  index_map: dict[str, int],
+  concurrency: int,
+  show_progress: bool,
+) -> list[Path]:
+  """Process files concurrently via thread pool, optionally with progress."""
+  results: list[Path] = []
+
+  if show_progress:
+    with make_file_progress(len(data), "Generating specs") as progress:
+      task = progress.add_task("", total=len(data))
+
+      with ThreadPoolExecutor(max_workers=concurrency) as executor:
+        futures = _submit_futures(
+          executor,
+          data,
+          src_paths,
+          cfg,
+          prompt_template,
+          provider,
+          project_root,
+          dry_run,
+          index_map,
+        )
+
+        try:
+          for future in as_completed(futures):
+            rel_path = futures[future]
+            _collect_future_result(future, rel_path, results)
+            progress.update(task, advance=1)
+
+        except KeyboardInterrupt:
+          for f in futures:
+            f.cancel()
+          return results
+
+  else:
+    console.log(f"Processing {len(data)} files ...")
+
+    with ThreadPoolExecutor(max_workers=concurrency) as executor:
+      futures = _submit_futures(
+        executor,
+        data,
+        src_paths,
+        cfg,
+        prompt_template,
+        provider,
+        project_root,
+        dry_run,
+        index_map,
+      )
+
+      try:
+        for future in as_completed(futures):
+          rel_path = futures[future]
+          _collect_future_result(future, rel_path, results)
+
+      except KeyboardInterrupt:
+        for f in futures:
+          f.cancel()
+        return results
+
+  console.print(f"[green]Done. Processed {len(results)} files.[/green]")
+
+  return results
+
+
 def generate_for_files(
   files: Iterable[Path],
   prompt_template: str,
@@ -148,6 +366,8 @@ def generate_for_files(
   if skipped > 0:
     console.log(f"Skipped {skipped} up-to-date files.")
 
+  show_progress = not dry_run and not cfg.runtime.no_progress
+
   sorted_paths = sorted(file_data)
   index_map = {path: i for i, path in enumerate(sorted_paths)}
 
@@ -155,7 +375,14 @@ def generate_for_files(
     if file_count > 0:
       try:
         bulk_results, missing = generate_bulk(
-          file_data, prompt_template, provider, cfg, project_root, src_paths, dry_run
+          file_data,
+          prompt_template,
+          provider,
+          cfg,
+          project_root,
+          src_paths,
+          dry_run,
+          show_progress,
         )
 
       except KeyboardInterrupt:
@@ -168,28 +395,18 @@ def generate_for_files(
 
         console.log(f"Retrying {len(retry_data)} missed files in per-file mode ...")
 
-        retry_results = []
-
-        for rel_path, code in retry_data.items():
-          try:
-            out = _process_one_file(
-              retry_paths[rel_path],
-              rel_path,
-              code,
-              cfg.output.language,
-              prompt_template,
-              provider,
-              cfg,
-              project_root,
-              dry_run,
-              index_map.get(rel_path, 0),
-            )
-
-            if out is not None:
-              retry_results.append(out)
-
-          except Exception as e:
-            console.print(f"[red]Error processing {rel_path}: {e}[/red]")
+        retry_results = _run_sequential(
+          retry_data,
+          retry_paths,
+          cfg,
+          prompt_template,
+          provider,
+          project_root,
+          dry_run,
+          index_map,
+          show_progress,
+          description="Retrying missed files",
+        )
 
         results = bulk_results + retry_results
 
@@ -212,87 +429,31 @@ def generate_for_files(
 
       console.print("[yellow]Falling back to per-file generation.[/yellow]")
 
-  console.log(f"Processing {file_count} files in {gen_mode.value} mode ...")
-
   if concurrency > 1:
-    results: list[Path] = []
-
-    with ThreadPoolExecutor(max_workers=concurrency) as executor:
-      futures = {}
-
-      for rel_path, code in file_data.items():
-        future = executor.submit(
-          _process_one_file,
-          src_paths[rel_path],
-          rel_path,
-          code,
-          cfg.output.language,
-          prompt_template,
-          provider,
-          cfg,
-          project_root,
-          dry_run,
-          index_map[rel_path],
-        )
-
-        futures[future] = rel_path
-
-      try:
-        for future in as_completed(futures):
-          rel_path = futures[future]
-
-          try:
-            out = future.result()
-
-            if out is not None:
-              results.append(out)
-
-          except Exception as e:
-            console.print(f"[red]Error processing {rel_path}: {e}[/red]")
-
-      except KeyboardInterrupt:
-        console.print(
-          f"\n[yellow]Interrupted. Saved {len(results)} of {file_count} files.[/yellow]"
-        )
-
-        for f in futures:
-          f.cancel()
-
-        return results
-
-    console.print(f"[green]Done. Processed {len(results)} files.[/green]")
-
-    return results
-
-  results = []
-
-  try:
-    for rel_path, code in file_data.items():
-      try:
-        out = _process_one_file(
-          src_paths[rel_path],
-          rel_path,
-          code,
-          cfg.output.language,
-          prompt_template,
-          provider,
-          cfg,
-          project_root,
-          dry_run,
-          index_map[rel_path],
-        )
-
-        if out is not None:
-          results.append(out)
-
-      except Exception as e:
-        console.print(f"[red]Error processing {rel_path}: {e}[/red]")
-
-  except KeyboardInterrupt:
-    console.print(
-      f"\n[yellow]Interrupted. Saved {len(results)} of {file_count} files.[/yellow]"
+    return _run_parallel(
+      file_data,
+      src_paths,
+      cfg,
+      prompt_template,
+      provider,
+      project_root,
+      dry_run,
+      index_map,
+      concurrency,
+      show_progress,
     )
-    return results
+
+  results = _run_sequential(
+    file_data,
+    src_paths,
+    cfg,
+    prompt_template,
+    provider,
+    project_root,
+    dry_run,
+    index_map,
+    show_progress,
+  )
 
   console.print(f"[green]Done. Processed {len(results)} files.[/green]")
 

@@ -25,6 +25,7 @@ class CLIConfigOverrides(BaseModel):
   language: str | None = None
   concurrency: int | None = None
   generation_mode: str | None = None
+  no_progress: bool | None = None
 
   _check_model_not_empty = field_validator("model")(_validate_model_not_empty)
 
@@ -67,6 +68,7 @@ class PromptConfig(BaseModel):
 class RuntimeConfig(BaseModel):
   concurrency: int = Field(default=3, ge=1)
   generation_mode: GenerationMode = GenerationMode.per_file
+  no_progress: bool = False
 
 
 class FSCConfig(BaseModel):

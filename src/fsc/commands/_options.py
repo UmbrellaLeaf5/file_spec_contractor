@@ -15,6 +15,9 @@ class CliTyperOptions:
   FORCE: bool = typer.Option(
     False, "-f", "--force", help="Regenerate all specs, ignoring cache"
   )
+  NO_PROGRESS: bool = typer.Option(
+    False, "--no-progress", help="Disable progress bars during generation"
+  )
   VERBOSE: bool = typer.Option(False, "--verbose")
   YES: bool = typer.Option(False, "-y", "--yes", help="Skip confirmation prompt")
   # list flags:

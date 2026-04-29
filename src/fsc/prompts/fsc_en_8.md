@@ -8,7 +8,7 @@ You will receive the complete codebase (all files). You should and must analyze 
 
 Create **one specification per source file**, not per function or class. The specification describes the entire file and all public entities within it.
 
-**CRITICALLY IMPORTANT — HEADER:**
+**CRITICALLY IMPORTANT - HEADER:**
 
 - **Every specification MUST start with a header line.** The header is mandatory and cannot be skipped.
 - The header must be exactly in one of these formats:

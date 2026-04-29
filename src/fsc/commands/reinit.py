@@ -9,6 +9,7 @@ def reinit_command(
   directory: Path | None = CliTyperArguments.DIRECTORY,
   # bool flags:
   yes: bool = CliTyperOptions.YES,
+  no_progress: bool = CliTyperOptions.NO_PROGRESS,
   # list flags:
   extensions: list[str] | None = CliTyperOptions.EXTENSIONS,
   exclude_dirs: list[str] | None = CliTyperOptions.EXCLUDE_DIRS,
@@ -41,6 +42,7 @@ def reinit_command(
     language=language,
     concurrency=concurrency,
     generation_mode=gen_mode,
+    no_progress=no_progress,
   )
 
   do_init(force=True, yes=yes, overrides=overrides, target_dir=directory)

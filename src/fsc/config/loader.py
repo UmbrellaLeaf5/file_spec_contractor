@@ -86,4 +86,7 @@ def apply_cli_overrides(cfg: FSCConfig, overrides: CLIConfigOverrides) -> FSCCon
   if overrides.generation_mode:
     cfg.runtime.generation_mode = GenerationMode(overrides.generation_mode)
 
+  if overrides.no_progress is not None:
+    cfg.runtime.no_progress = overrides.no_progress
+
   return cfg

@@ -15,6 +15,7 @@ def init_command(
   directory: Path | None = CliTyperArguments.DIRECTORY,
   # bool flags:
   force: bool = CliTyperOptions.FORCE,
+  no_progress: bool = CliTyperOptions.NO_PROGRESS,
   yes: bool = CliTyperOptions.YES,
   # list flags:
   extensions: list[str] | None = CliTyperOptions.EXTENSIONS,
@@ -48,6 +49,7 @@ def init_command(
     language=language,
     concurrency=concurrency,
     generation_mode=gen_mode,
+    no_progress=no_progress,
   )
 
   do_init(force=force, yes=yes, overrides=overrides, target_dir=directory)

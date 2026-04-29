@@ -23,13 +23,13 @@
 
 A module or component affected by the commit:
 
-- `cli` — command-line interface, flags, help text
-- `config` — TOML loader, schemas, overrides
-- `providers` — LLM provider logic (OpenRouter, DeepSeek, factory)
-- `spec` — specification generation (bulk, per-file, resolver)
-- `utils` — helper modules (file system, env, prompts)
-- `tests` — test infrastructure
-- `docs` — README, AGENTS.md, CONTRIBUTING.md
+- `cli` - command-line interface, flags, help text
+- `config` - TOML loader, schemas, overrides
+- `providers` - LLM provider logic (OpenRouter, DeepSeek, factory)
+- `spec` - specification generation (bulk, per-file, resolver)
+- `utils` - helper modules (file system, env, prompts)
+- `tests` - test infrastructure
+- `docs` - README, AGENTS.md, CONTRIBUTING.md
 
 ### Subject (required)
 
@@ -37,7 +37,7 @@ Concise imperative statement summarizing the change. Use lowercase.
 
 ### Body (optional)
 
-Detailed explanation of what and why. Use this to provide context — motivation, edge cases, trade-offs.
+Detailed explanation of what and why. Use this to provide context - motivation, edge cases, trade-offs.
 
 ### Examples
 
@@ -74,7 +74,7 @@ docs(readme): update generation mode defaults to per-file
 
 ## Before contributing
 
-Run all three checks — in this order:
+Run all three checks - in this order:
 
 ```bash
 ruff check src/fsc/ tests/
