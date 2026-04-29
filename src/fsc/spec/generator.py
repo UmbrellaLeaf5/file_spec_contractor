@@ -15,17 +15,13 @@ def _find_fresh_spec_in_any_mode(
   src_path: Path, project_root: Path, cfg: FSCConfig
 ) -> Path | None:
   src_mtime = src_path.stat().st_mtime
-  original_mode = cfg.output.output_mode
 
   for mode in OutputMode:
-    cfg.output.output_mode = mode
-    spec = resolve_output_path(src_path, project_root, cfg)
+    spec = resolve_output_path(src_path, project_root, cfg, output_mode=mode)
 
     if spec.exists() and spec.stat().st_mtime >= src_mtime:
-      cfg.output.output_mode = original_mode
       return spec
 
-  cfg.output.output_mode = original_mode
   return None
 
 
@@ -265,21 +261,25 @@ def generate_for_files(
 
   try:
     for rel_path, code in file_data.items():
-      out = _process_one_file(
-        src_paths[rel_path],
-        rel_path,
-        code,
-        cfg.output.language,
-        prompt_template,
-        provider,
-        cfg,
-        project_root,
-        dry_run,
-        index_map[rel_path],
-      )
+      try:
+        out = _process_one_file(
+          src_paths[rel_path],
+          rel_path,
+          code,
+          cfg.output.language,
+          prompt_template,
+          provider,
+          cfg,
+          project_root,
+          dry_run,
+          index_map[rel_path],
+        )
 
-      if out is not None:
-        results.append(out)
+        if out is not None:
+          results.append(out)
+
+      except Exception as e:
+        console.print(f"[red]Error processing {rel_path}: {e}[/red]")
 
   except KeyboardInterrupt:
     console.print(

@@ -1,6 +1,8 @@
 import re
 from pathlib import Path
 
+from fsc.config.schemas import FSCConfig
+from fsc.providers.base import BaseProvider
 from fsc.utils.console import console
 from fsc.utils.fs import resolve_output_path, write_spec_atomic
 
@@ -50,8 +52,8 @@ def _parse_batch_response(response: str) -> dict[str, str]:
 def generate_bulk(
   files: dict[str, str],
   system_prompt: str,
-  provider,
-  cfg,
+  provider: BaseProvider,
+  cfg: FSCConfig,
   project_root: Path,
   src_paths: dict[str, Path],
   dry_run: bool = False,

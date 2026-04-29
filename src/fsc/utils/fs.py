@@ -46,8 +46,11 @@ def resolve_output_path(
   project_root: Path,
   cfg: FSCConfig,
   file_index: int | None = None,
+  output_mode: OutputMode | None = None,
 ) -> Path:
-  if cfg.output.output_mode == OutputMode.adjacent:
+  mode = output_mode if output_mode is not None else cfg.output.output_mode
+
+  if mode == OutputMode.adjacent:
     return src_path.with_name(src_path.name + ".fsc.md")
 
   try:
@@ -56,7 +59,7 @@ def resolve_output_path(
   except ValueError:
     rel = src_path
 
-  if cfg.output.output_mode == OutputMode.batch:
+  if mode == OutputMode.batch:
     if file_index is None:
       file_index = 0
 

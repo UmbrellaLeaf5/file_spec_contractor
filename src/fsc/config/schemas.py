@@ -19,6 +19,14 @@ class CLIConfigOverrides(BaseModel):
   concurrency: int | None = None
   generation_mode: str | None = None
 
+  @field_validator("model")
+  @classmethod
+  def _check_model_not_empty(cls, v: str | None) -> str | None:
+    if v is not None and not v.strip():
+      raise ValueError("model must not be empty")
+
+    return v
+
 
 class ProjectConfig(BaseModel):
   extensions: list[str] = Field(default_factory=lambda: [".py"])
@@ -47,6 +55,14 @@ class OutputConfig(BaseModel):
 class ApiConfig(BaseModel):
   provider: str = "openrouter"
   model: str | None = None
+
+  @field_validator("model")
+  @classmethod
+  def _check_model_not_empty(cls, v: str | None) -> str | None:
+    if v is not None and not v.strip():
+      raise ValueError("model must not be empty")
+
+    return v
 
 
 class PromptConfig(BaseModel):

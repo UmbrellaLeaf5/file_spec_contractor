@@ -57,7 +57,7 @@ app.command(
     "Config priority: CLI > .fsc/config.toml > ~/.config/fsc/config.toml\n\n"
     "Examples:\n"
     "  fsc generate\n"
-    "  fsc generate --file src/machine.py\n"
+    "  fsc generate --files src/machine.py\n"
     "  fsc generate --extensions .py .kt\n"
     "  fsc generate --gen-mode per-file -c 5\n"
     "  fsc generate --dry-run --verbose\n"
@@ -127,7 +127,7 @@ def main() -> None:
     if scala.detect():
       console.print(scala.WARNING)
 
-  except Exception:
+  except OSError:
     pass
 
   try:

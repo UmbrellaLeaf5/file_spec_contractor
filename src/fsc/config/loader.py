@@ -71,7 +71,7 @@ def apply_cli_overrides(cfg: FSCConfig, overrides: CLIConfigOverrides) -> FSCCon
   if overrides.output_dir:
     cfg.output.output_dir = overrides.output_dir
 
-  if overrides.batch_size:
+  if overrides.batch_size is not None:
     cfg.output.batch_size = overrides.batch_size
 
   if overrides.prompt_file:
@@ -80,7 +80,7 @@ def apply_cli_overrides(cfg: FSCConfig, overrides: CLIConfigOverrides) -> FSCCon
   if overrides.language:
     cfg.output.language = overrides.language
 
-  if overrides.concurrency:
+  if overrides.concurrency is not None:
     cfg.runtime.concurrency = overrides.concurrency
 
   if overrides.generation_mode:

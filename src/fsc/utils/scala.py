@@ -48,7 +48,7 @@ def detect() -> bool:
     return True
 
   try:
-    return bool(list(cwd.rglob("*.scala")))
+    return any(cwd.rglob("*.scala"))
 
   except Exception:
     return False
