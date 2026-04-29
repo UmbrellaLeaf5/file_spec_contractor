@@ -2,6 +2,8 @@ import fnmatch
 import os
 from pathlib import Path
 
+import charset_normalizer
+
 from fsc.config.enums import OutputMode
 from fsc.config.schemas import FSCConfig
 
@@ -93,3 +95,24 @@ def is_spec_fresh(src_path: Path, project_root: Path, cfg: FSCConfig) -> bool:
 
 def find_spec_files(root: Path) -> list[Path]:
   return sorted(root.rglob("*.fsc.md"))
+
+
+def read_file_safe(path: Path) -> str:
+  try:
+    return path.read_text(encoding="utf-8")
+
+  except UnicodeDecodeError:
+    result = charset_normalizer.from_path(str(path))
+
+    if result.best():
+      return str(result.best())
+
+    return path.read_text(encoding="latin-1")
+
+
+def resolve_rel(path: Path, project_root: Path) -> str:
+  try:
+    return str(path.relative_to(project_root))
+
+  except ValueError:
+    return str(path)
