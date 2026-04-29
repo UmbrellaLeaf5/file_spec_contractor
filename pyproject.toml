@@ -49,7 +49,7 @@ Repository = "https://github.com/UmbrellaLeaf5/file_spec_contractor"
 Issues = "https://github.com/UmbrellaLeaf5/file_spec_contractor/issues"
 
 [project.optional-dependencies]
-dev = ["pytest>=9.0.3", "pytest-mock>=3.12.0"]
+dev = ["pytest>=9.0.3", "pytest-mock>=3.12.0", "pyright>=1.1.409"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

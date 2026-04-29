@@ -8,6 +8,8 @@
 [![python-dotenv](https://img.shields.io/badge/dotenv-1.0+-yellow)](https://github.com/theskumar/python-dotenv)
 [![License](https://img.shields.io/badge/License-Unlicense-lightgrey)](https://unlicense.org)
 [![Tests](https://github.com/UmbrellaLeaf5/file_spec_contractor/workflows/Tests/badge.svg)](https://github.com/UmbrellaLeaf5/file_spec_contractor/actions/workflows/tests.yml)
+[![Ruff](https://github.com/UmbrellaLeaf5/file_spec_contractor/workflows/Ruff/badge.svg)](https://github.com/UmbrellaLeaf5/file_spec_contractor/actions/workflows/ruff.yml)
+[![Pyright](https://github.com/UmbrellaLeaf5/file_spec_contractor/workflows/Pyright/badge.svg)](https://github.com/UmbrellaLeaf5/file_spec_contractor/actions/workflows/pyright.yml)
 
 > Token-saving contracts for your codebase.
 
