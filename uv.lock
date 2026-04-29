@@ -230,6 +230,7 @@ wheels = [
 name = "file-spec-contractor"
 source = { editable = "." }
 dependencies = [
+    { name = "charset-normalizer" },
     { name = "httpx" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -251,6 +252,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "charset-normalizer", specifier = ">=3.0.0" },
     { name = "httpx", specifier = ">=0.24.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.409" },

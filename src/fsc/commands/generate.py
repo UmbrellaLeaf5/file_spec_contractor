@@ -67,16 +67,13 @@ def generate_command(
 
   lang = cfg.output.language
 
-  if lang == "ru" and "русс" not in prompt_text.lower():
-    console.print(
-      "[yellow]Warning: language is set to 'ru' but PROMPT.md does not appear "
-      "to be in Russian. Run `fsc init --language ru --yes` to regenerate.[/yellow]"
-    )
+  _LANG_KEYWORDS = {"ru": "русс", "en": "engl"}
 
-  if lang == "en" and "engl" not in prompt_text.lower():
+  if lang in _LANG_KEYWORDS and _LANG_KEYWORDS[lang] not in prompt_text.lower():
     console.print(
-      "[yellow]Warning: language is set to 'en' but PROMPT.md does not appear "
-      "to be in English. Run `fsc init --language en --yes` to regenerate.[/yellow]"
+      f"[yellow]Warning: language is set to '{lang}' but PROMPT.md does not appear "
+      f"to be in {lang.upper()}. "
+      f"Run `fsc init --language {lang} --yes` to regenerate.[/yellow]"
     )
 
   if lang != "en":

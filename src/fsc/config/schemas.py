@@ -3,6 +3,13 @@ from pydantic import BaseModel, Field, field_validator
 from fsc.config.enums import GenerationMode, OutputMode
 
 
+def _validate_model_not_empty(v: str | None) -> str | None:
+  if v is not None and not v.strip():
+    raise ValueError("model must not be empty")
+
+  return v
+
+
 class CLIConfigOverrides(BaseModel):
   """Typed container for CLI flag overrides applied to FSCConfig."""
 
@@ -19,13 +26,7 @@ class CLIConfigOverrides(BaseModel):
   concurrency: int | None = None
   generation_mode: str | None = None
 
-  @field_validator("model")
-  @classmethod
-  def _check_model_not_empty(cls, v: str | None) -> str | None:
-    if v is not None and not v.strip():
-      raise ValueError("model must not be empty")
-
-    return v
+  _check_model_not_empty = field_validator("model")(_validate_model_not_empty)
 
 
 class ProjectConfig(BaseModel):
@@ -56,13 +57,7 @@ class ApiConfig(BaseModel):
   provider: str = "openrouter"
   model: str | None = None
 
-  @field_validator("model")
-  @classmethod
-  def _check_model_not_empty(cls, v: str | None) -> str | None:
-    if v is not None and not v.strip():
-      raise ValueError("model must not be empty")
-
-    return v
+  _check_model_not_empty = field_validator("model")(_validate_model_not_empty)
 
 
 class PromptConfig(BaseModel):

@@ -1,4 +1,5 @@
 from pathlib import Path
+from unittest.mock import patch
 
 from typer.testing import CliRunner
 
@@ -129,3 +130,87 @@ def test_deinit_idempotent(tmp_path: Path, monkeypatch):
   result = runner.invoke(app, ["deinit", "-y"])
 
   assert result.exit_code == 0
+
+
+def test_generate_warns_bulk_unreliable(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+  monkeypatch.setenv("OPEN_ROUTER_API_KEY", "test-key")
+
+  (tmp_path / "app.py").write_text("x = 1")
+  runner.invoke(app, ["init", "-y"])
+
+  dummy_bulk = "## SPEC: app.py\n# app.py\n\n## Purpose\nGenerated.\n"
+
+  with patch(
+    "fsc.providers.openrouter.OpenRouterProvider.generate", return_value=dummy_bulk
+  ):
+    result = runner.invoke(
+      app, ["generate", "--gen-mode", "bulk", "--files", str(tmp_path / "app.py")]
+    )
+
+  assert result.exit_code == 0
+  assert "bulk mode can be unreliable" in result.stdout
+
+
+def test_generate_warns_concurrency_in_bulk(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+  monkeypatch.setenv("OPEN_ROUTER_API_KEY", "test-key")
+
+  (tmp_path / "app.py").write_text("x = 1")
+  runner.invoke(app, ["init", "-y"])
+
+  dummy_bulk = "## SPEC: app.py\n# app.py\n\n## Purpose\nGenerated.\n"
+
+  with patch(
+    "fsc.providers.openrouter.OpenRouterProvider.generate", return_value=dummy_bulk
+  ):
+    result = runner.invoke(
+      app,
+      [
+        "generate", "--gen-mode", "bulk", "-c", "5",
+        "--files", str(tmp_path / "app.py"),
+      ],
+    )
+
+  assert result.exit_code == 0
+  assert "has no effect in bulk mode" in result.stdout
+
+
+def test_generate_warns_batch_size_without_batch_mode(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+  monkeypatch.setenv("OPEN_ROUTER_API_KEY", "test-key")
+
+  (tmp_path / "app.py").write_text("x = 1")
+  runner.invoke(app, ["init", "-y"])
+
+  dummy_spec = "# app.py\n\n## Purpose\nGenerated.\n"
+
+  with patch(
+    "fsc.providers.openrouter.OpenRouterProvider.generate", return_value=dummy_spec
+  ):
+    result = runner.invoke(
+      app, ["generate", "--batch-size", "30", "--files", str(tmp_path / "app.py")]
+    )
+
+  assert result.exit_code == 0
+  assert "has no effect unless" in result.stdout
+
+
+def test_generate_warns_non_en_language(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+  monkeypatch.setenv("OPEN_ROUTER_API_KEY", "test-key")
+
+  (tmp_path / "app.py").write_text("x = 1")
+  runner.invoke(app, ["init", "-y", "--language", "ru"])
+
+  dummy_spec = "# app.py\n\n## Purpose\nGenerated.\n"
+
+  with patch(
+    "fsc.providers.openrouter.OpenRouterProvider.generate", return_value=dummy_spec
+  ):
+    result = runner.invoke(
+      app, ["generate", "--files", str(tmp_path / "app.py")]
+    )
+
+  assert result.exit_code == 0
+  assert "may not be supported by all models" in result.stdout

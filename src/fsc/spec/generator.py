@@ -3,6 +3,8 @@ from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import charset_normalizer
+
 from fsc.config.enums import GenerationMode, OutputMode
 from fsc.config.schemas import FSCConfig
 from fsc.providers.base import BaseProvider
@@ -29,7 +31,12 @@ def _read_file_safe(path: Path) -> str:
   try:
     return path.read_text(encoding="utf-8")
 
-  except Exception:
+  except UnicodeDecodeError:
+    result = charset_normalizer.from_path(str(path))
+
+    if result.best():
+      return str(result.best())
+
     return path.read_text(encoding="latin-1")
 
 

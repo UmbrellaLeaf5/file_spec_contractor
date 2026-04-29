@@ -2,8 +2,13 @@ import tomllib
 from pathlib import Path
 
 import pytest
+from typer.testing import CliRunner
 
 from fsc.config.loader import load_merged_config
+from fsc.main import app
+
+
+runner = CliRunner()
 
 
 def test_missing_config_falls_back_to_defaults(tmp_path: Path):
@@ -91,3 +96,37 @@ def test_batch_size_string(tmp_path: Path):
 
   with pytest.raises(ValueError, match="valid integer"):
     load_merged_config(tmp_path)
+
+
+def test_empty_model_in_config(tmp_path: Path):
+  fsc_dir = tmp_path / ".fsc"
+  fsc_dir.mkdir()
+  (fsc_dir / "config.toml").write_text('[api]\nmodel = ""\n')
+
+  with pytest.raises(ValueError, match="model must not be empty"):
+    load_merged_config(tmp_path)
+
+
+def test_whitespace_model_in_config(tmp_path: Path):
+  fsc_dir = tmp_path / ".fsc"
+  fsc_dir.mkdir()
+  (fsc_dir / "config.toml").write_text('[api]\nmodel = "   "\n')
+
+  with pytest.raises(ValueError, match="model must not be empty"):
+    load_merged_config(tmp_path)
+
+
+def test_empty_model_cli_rejected(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+
+  result = runner.invoke(app, ["init", "-y", "--model", ""])
+
+  assert result.exit_code != 0
+
+
+def test_whitespace_model_cli_rejected(tmp_path: Path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
+
+  result = runner.invoke(app, ["init", "-y", "--model", "   "])
+
+  assert result.exit_code != 0
