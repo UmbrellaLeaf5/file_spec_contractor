@@ -90,14 +90,14 @@ fsc reinit --extensions .py --extensions .kt --language ru
 # Init with custom model
 fsc init --model deepseek-reasoner
 
-# Generate specifications for current directory (scan mode, bulk by default)
+# Generate specifications for current directory (scan mode, per-file by default)
 fsc generate
 
 # Generate with a specific model
 fsc generate --model openai/gpt-4o-mini
 
 # Generate for specific files
-fsc generate --file src/machine.py
+fsc generate --files src/machine.py
 
 # Generate with custom extensions
 fsc generate --extensions .py .kt
@@ -117,11 +117,11 @@ fsc --version
 
 ### Generation Modes
 
-| Mode                    | Flag                    | Behaviour                                                                       |
-| ----------------------- | ----------------------- | ------------------------------------------------------------------------------- |
-| **bulk**                | _(default)_            | All files in a single LLM request. Consistent, cross-referenced specifications. |
-| **per-file**            | `--gen-mode per-file`  | Each file separately, one at a time.                                            |
-| **per-file parallel**   | `-c N`                 | N files simultaneously via thread pool. Fastest for large projects.             |
+| Mode                  | Flag              | Behaviour                                                                       |
+| --------------------- | ----------------- | ------------------------------------------------------------------------------- |
+| **per-file**          | _(default)_       | Each file separately, one at a time.                                            |
+| **bulk**              | `--gen-mode bulk` | All files in a single LLM request. Consistent, cross-referenced specifications. |
+| **per-file parallel** | `-c N`            | N files simultaneously via thread pool. Fastest for large projects.             |
 
 If bulk mode fails to produce parsable output, `fsc` automatically falls back to per-file generation.
 
@@ -137,13 +137,13 @@ If bulk mode fails to produce parsable output, `fsc` automatically falls back to
 
 ### Options
 
-All options below are available on `generate`, `init`, and `reinit` (except `--file`, `--dry-run`, `--verbose` which are `generate`-only).
+All options below are available on `generate`, `init`, and `reinit` (except `--files`, `--dry-run`, `--verbose` which are `generate`-only).
 
 | Option                | Description                                                        |
 | --------------------- | ------------------------------------------------------------------ |
 | `--force`             | Recreate config from scratch (`init`/`reinit`)                     |
 | `-y`, `--yes`         | Skip confirmation prompts on destructive operations                |
-| `--file`              | Specific files to generate specs for (`generate` only, repeatable) |
+| `--files`             | Specific files to generate specs for (`generate` only, repeatable) |
 | `--extensions`        | File extensions to include (default: `.py`)                        |
 | `--exclude-dirs`      | Directories to skip                                                |
 | `--exclude-files`     | File patterns to skip                                              |
@@ -155,8 +155,8 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--batch-size`        | Files per folder in batch mode (default: `50`)                     |
 | `--prompt-file`       | Custom system prompt file                                          |
 | `--language`          | Prompt language: `en` (default) or `ru` (`init`/`reinit` only)     |
-| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`) |
-| `--gen-mode` | Generation mode: `bulk` (default), `per-file`, `per-file-parallel` |
+| `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`)                 |
+| `--gen-mode`          | Generation mode: `per-file` (default), `bulk`, `per-file-parallel` |
 | `-f`, `--force`       | Regenerate all specs, ignoring cache                               |
 | `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
 | `--verbose`           | Detailed output (`generate` only)                                  |
@@ -200,7 +200,7 @@ batch_size = 50          # files per folder (batch mode)
 # LLM provider
 [api]
 provider = "openrouter"        # "openrouter" or "deepseek"
-model = ""                     # model name; empty = provider default
+# model = "deepseek-chat"      # optional; omit to use provider default
 
 # Custom system prompt file (relative to project root)
 [prompt]
@@ -209,7 +209,7 @@ file = ".fsc/PROMPT.md"
 # Generation runtime settings
 [runtime]
 concurrency = 3            # parallel threads for per-file mode
-generation_mode = "bulk"    # "bulk", "per-file", or "per-file-parallel"
+generation_mode = "per-file" # "per-file", "bulk", or "per-file-parallel"
 ```
 
 ### API Key
@@ -306,7 +306,7 @@ If no prompt file is found, a warning is shown and the built-in prompt is used.
 ## How It Works
 
 1. Scans your project for files matching configured extensions
-2. Sends all files in a single request to the LLM (bulk mode, default) or one-by-one (per-file mode)
+2. Sends files to the LLM one-by-one (per-file mode, default) or all in a single request (bulk mode)
 3. The LLM generates structured `.fsc.md` specifications
 4. Saves the specifications as `file.<ext>.fsc.md` - ready to be fed to any LLM agent
 5. On subsequent runs, skips unchanged files. If output mode changed, moves specs instead of regenerating.
