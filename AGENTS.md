@@ -1,0 +1,38 @@
+# AGENTS.md
+
+## Setup
+
+```bash
+uv sync                                      # Python 3.13, creates .venv
+```
+
+## Verify after changes
+
+Run ALL three — in this order:
+
+```bash
+ruff check src/fsc/ tests/                   # lint
+pyright src/fsc/                             # type-check
+uv run pytest -k "not openrouter_generate and not full_pipeline_cache and not full_pipeline_force"  # unit tests
+```
+
+**LSP is mandatory.** `opencode.json` configures `pyright-langserver` and `ruff server`. After every code change, run both `pyright src/fsc/` and `ruff check src/fsc/ tests/` to confirm 0 errors before declaring done. Treat lint and type errors as blockers on par with test failures.
+
+## Run a single test
+
+```bash
+uv run pytest tests/test_commands.py::test_init_twice_without_yes -v
+```
+
+## Testing quirks
+
+- **Skipped tests:** 4 API-dependent tests (`test_openrouter_generate_single_file`, `test_openrouter_generate_batch`, `test_full_pipeline_cache`, `test_full_pipeline_force`) require `OPEN_ROUTER_API_KEY` env var. Use `-k "not ..."` to exclude them.
+- **CLI tests use CliRunner.** Rich Console output is captured correctly in `result.stdout` — no special handling needed.
+- **API key resolution priority:** `--api-key` flag > environment variable > `.env` file. Tests that simulate missing keys must `delenv` both `OPEN_ROUTER_API_KEY` and `DEEPSEEK_API_KEY`.
+
+## Conventions
+
+- **2-space indent** everywhere (NOT 4-space)
+- **`api_key`/`resolved`/`provider_client`** — the resolved API key is called `resolved`, the provider instance is `provider_client`
+- **`overrides` (not `cli_args`)** — config overrides use `CLIConfigOverrides` Pydantic model, never a raw dict
+- **Model default is `None`** — empty model means "use provider default". Check with `is not None`, not truthiness.
