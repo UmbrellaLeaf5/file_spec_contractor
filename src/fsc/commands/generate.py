@@ -4,7 +4,7 @@ from pathlib import Path
 import typer
 
 from fsc.commands._options import CliTyperOptions
-from fsc.config.enums import GenerationMode
+from fsc.config.enums import GenerationMode, OutputMode
 from fsc.config.loader import CLIConfigOverrides, apply_cli_overrides, load_merged_config
 from fsc.providers.factory import get_provider_info, provider_context
 from fsc.spec.generator import generate_for_files
@@ -79,6 +79,12 @@ def generate_command(
       "to be in English. Run `fsc init --language en --yes` to regenerate.[/yellow]"
     )
 
+  if lang != "en":
+    console.print(
+      f"[yellow]Warning: language '{lang}' may not be supported by all models. "
+      "Output may still be in English.[/yellow]"
+    )
+
   provider_name = cfg.api.provider
   provider_info = get_provider_info(provider_name)
 
@@ -120,6 +126,12 @@ def generate_command(
     )
     cfg.runtime.generation_mode = GenerationMode.per_file
 
+  if not dry_run and cfg.runtime.generation_mode == GenerationMode.bulk:
+    console.print(
+      "[yellow]Warning: bulk mode can be unreliable — models may skip files, "
+      "sections, or prompt instructions. Per-file mode is recommended.[/yellow]"
+    )
+
   if (
     cfg.runtime.generation_mode == GenerationMode.per_file_parallel
     and concurrency is None
@@ -129,6 +141,18 @@ def generate_command(
     )
 
     raise typer.Exit(code=2)
+
+  if concurrency is not None and cfg.runtime.generation_mode == GenerationMode.bulk:
+    console.print(
+      "[yellow]Warning: --concurrency / -c has no effect in bulk mode. "
+      "Use --gen-mode per-file or per-file-parallel.[/yellow]"
+    )
+
+  if batch_size is not None and cfg.output.output_mode != OutputMode.batch:
+    console.print(
+      "[yellow]Warning: --batch-size has no effect unless "
+      "--output-mode batch is also set.[/yellow]"
+    )
 
   console.log(
     f"Found {len(targets)} files. Mode: {cfg.runtime.generation_mode.value}."
