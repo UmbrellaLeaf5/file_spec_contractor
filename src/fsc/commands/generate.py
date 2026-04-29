@@ -6,8 +6,7 @@ import typer
 from fsc.commands._options import CliTyperOptions
 from fsc.config.enums import GenerationMode
 from fsc.config.loader import CLIConfigOverrides, apply_cli_overrides, load_merged_config
-from fsc.providers.deepseek import DeepSeekProvider
-from fsc.providers.openrouter import OpenRouterProvider
+from fsc.providers.factory import get_provider_info, provider_context
 from fsc.spec.generator import generate_for_files
 from fsc.utils.console import console
 from fsc.utils.env import load_dotenv
@@ -81,43 +80,22 @@ def generate_command(
     )
 
   provider_name = cfg.api.provider
-  dotenv = load_dotenv(project_root)
+  provider_info = get_provider_info(provider_name)
 
-  if provider_name == "deepseek":
-    env_key = os.environ.get("DEEPSEEK_API_KEY", "")
-    resolved = api_key or env_key or dotenv.get("DEEPSEEK_API_KEY", "")
-
-    if not resolved:
-      console.print(
-        "[red]DeepSeek API key not found. "
-        "Use --api-key, set DEEPSEEK_API_KEY, or add to .env[/red]"
-      )
-
-      raise typer.Exit(code=2)
-
-    provider_client = DeepSeekProvider(api_key=resolved)
-
-    if cfg.api.model is not None:
-      provider_client.model = cfg.api.model
-
-  elif provider_name == "openrouter":
-    env_key = os.environ.get("OPEN_ROUTER_API_KEY", "")
-    resolved = api_key or env_key or dotenv.get("OPEN_ROUTER_API_KEY", "")
-
-    if not resolved:
-      console.print(
-        "[red]OpenRouter API key not found. "
-        "Use --api-key, set OPEN_ROUTER_API_KEY, or add to .env[/red]"
-      )
-      raise typer.Exit(code=2)
-
-    provider_client = OpenRouterProvider(api_key=resolved)
-
-    if cfg.api.model is not None:
-      provider_client.model = cfg.api.model
-
-  else:
+  if provider_info is None:
     console.print(f"[red]Unknown provider: {provider_name}[/red]")
+    raise typer.Exit(code=2)
+
+  dotenv = load_dotenv(project_root)
+  env_key = provider_info["env_key"]
+  env_value = os.environ.get(env_key, "")
+  resolved = api_key or env_value or dotenv.get(env_key, "")
+
+  if not resolved:
+    console.print(
+      f"[red]{provider_info['display']} API key not found. "
+      f"Use --api-key, set {env_key}, or add to .env[/red]"
+    )
     raise typer.Exit(code=2)
 
   if files:
@@ -158,17 +136,18 @@ def generate_command(
   )
 
   try:
-    generate_for_files(
-      targets,
-      prompt_text,
-      provider_client,
-      cfg,
-      project_root=project_root,
-      dry_run=dry_run,
-      concurrency=cfg.runtime.concurrency,
-      gen_mode=cfg.runtime.generation_mode,
-      force=force,
-    )
+    with provider_context(provider_name, resolved, cfg.api.model) as provider_client:
+      generate_for_files(
+        targets,
+        prompt_text,
+        provider_client,
+        cfg,
+        project_root=project_root,
+        dry_run=dry_run,
+        concurrency=cfg.runtime.concurrency,
+        gen_mode=cfg.runtime.generation_mode,
+        force=force,
+      )
 
   except KeyboardInterrupt:
     console.print("\n[yellow]Interrupted. Any completed specs have been saved.[/yellow]")

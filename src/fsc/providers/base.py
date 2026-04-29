@@ -4,16 +4,11 @@ from abc import ABC, abstractmethod
 class BaseProvider(ABC):
   """Абстрактный базовый класс для всех LLM-провайдеров."""
 
+  model: str
+
   @abstractmethod
-  def generate(self, system_prompt: str, user_prompt: str, **kwargs) -> str:
-    """
-    Генерирует ответ на основе системного и пользовательского промптов.
+  def generate(self, system_prompt: str, user_prompt: str, **kwargs) -> str: ...
 
-    Args:
-        system_prompt: Инструкция для модели.
-        user_prompt: Пользовательский запрос.
-
-    Returns:
-        Сгенерированный текст.
-    """
-    ...
+  @abstractmethod
+  def close(self) -> None:
+    """Release resources (httpx client, etc.). Override in subclasses."""
