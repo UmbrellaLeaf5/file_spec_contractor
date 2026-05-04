@@ -159,6 +159,7 @@ All options below are available on `generate`, `init`, and `reinit` (except `--f
 | `--language`          | Prompt language: `en` (default) or `ru` (`init`/`reinit` only)     |
 | `-c`, `--concurrency` | Parallel requests for per-file mode (default: `3`)                 |
 | `--gen-mode`          | Generation mode: `per-file` (default), `bulk`, `per-file-parallel` |
+| `--no-progress`       | Disable progress bars during generation                           |
 | `-f`, `--force`       | Regenerate all specs, ignoring cache                               |
 | `--dry-run`           | Preview without writing files or calling API (`generate` only)     |
 | `--verbose`           | Detailed output (`generate` only)                                  |
@@ -212,6 +213,7 @@ file = ".fsc/PROMPT.md"
 [runtime]
 concurrency = 3            # parallel threads for per-file mode
 generation_mode = "per-file" # "per-file", "bulk", or "per-file-parallel"
+no_progress = false         # set to true to disable progress bars
 ```
 
 ### API Key
@@ -312,6 +314,7 @@ If no prompt file is found, a warning is shown and the built-in prompt is used.
 3. The LLM generates structured `.fsc.md` specifications
 4. Saves the specifications as `file.<ext>.fsc.md` - ready to be fed to any LLM agent
 5. On subsequent runs, skips unchanged files. If output mode changed, moves specs instead of regenerating.
+6. Shows progress bars by default (spinner for LLM wait, bar for file processing). Use `--no-progress` to disable.
 
 ## Specification Format
 
