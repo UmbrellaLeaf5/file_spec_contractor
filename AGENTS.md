@@ -1,22 +1,35 @@
 # AGENTS.md
 
+## Project
+
+FileSpecContractor (fsc) - CLI tool for generating compact `.fsc.md` file specifications.
+Generates concise file descriptions via LLM API to save tokens when working with AI agents.
+
 ## Setup
 
 ```bash
-uv sync                                      # Python 3.13, creates .venv
+uv sync                # installs dependencies and creates .venv
 ```
 
 ## Verify after changes
 
-Run ALL three - in this order:
+Run **all** checks in this order - treat errors as blockers:
 
 ```bash
-ruff check src/fsc/ tests/                   # lint
-pyright src/fsc/                             # type-check
+ruff check src/fsc/ tests/      # lint
+pyright src/fsc/                # type-check (25+ files)
 uv run pytest -k "not openrouter_generate and not full_pipeline_cache and not full_pipeline_force"  # unit tests
 ```
 
-**LSP is mandatory.** `opencode.json` configures `pyright-langserver` and `ruff server`. After every code change, run both `pyright src/fsc/` and `ruff check src/fsc/ tests/` to confirm 0 errors before declaring done. Treat lint and type errors as blockers on par with test failures.
+**LSP is mandatory.** Configure `pyright-langserver` and `ruff server` in your
+editor. After every change, confirm lint, format, and type-check show **0
+errors**.
+
+## Fix formatting & imports
+
+```bash
+ruff check --fix . && ruff format .
+```
 
 ## Run a single test
 
@@ -24,17 +37,89 @@ uv run pytest -k "not openrouter_generate and not full_pipeline_cache and not fu
 uv run pytest tests/test_commands.py::test_init_twice_without_yes -v
 ```
 
+## Code style
+
+### Indentation & layout
+
+- **2-space indentation** everywhere.
+- **Line length**: 90 characters.
+- **2 blank lines** between top-level definitions (functions, classes) and
+  after imports (`lines-after-imports = 2`).
+- **Blank line before control flow** - insert a blank line before every `if`,
+  `else`, `elif`, `for`, `while`, `try`, `except`, `finally`, `with`, `raise`,
+  `assert`, `return`, `continue` that sits at the same indentation level as its
+  containing block. Deeply nested one-liners may omit the blank line.
+
+  ```python
+  # Good
+  result = compute()
+
+  if result is None:
+      return
+
+  for item in items:
+      process(item)
+  ```
+
+- **Endline after docstrings** - always put an extra blank line after a
+  function or class docstring.
+
+  ```python
+  def my_func():
+      """Docstring."""
+
+      # code starts after a blank line
+      ...
+  ```
+
+- **Hanging indentation** for long signatures and calls:
+
+  ```python
+  def func(
+    self,
+    arg1: str,
+    arg2: int,
+  ) -> ReturnType:
+      ...
+  ```
+
+### Imports
+
+- After editing imports, run `ruff check --fix` to sort them. Ruff’s `I` rule
+  handles ordering, grouping (stdlib → third-party → project), and spacing.
+
+### Type annotations
+
+- Every function **must** have a return type annotation.
+- `pyright` runs in default mode (no `pyrightconfig.json`).
+
+### Exports
+
+- In `__init__.py` files, declare the public API with `__all__`. Ruff respects
+  `__all__`, so you don’t need `import X as X` or `# noqa` comments.
+
+### Naming
+
+- Prefer specific, descriptive names. Avoid ambiguous abbreviations.
+  - Example: `resolved` for the API key after resolution, `provider_client` for
+    the provider instance.
+
 ## Testing quirks
 
-- **Skipped tests:** 4 API-dependent tests (`test_openrouter_generate_single_file`, `test_openrouter_generate_batch`, `test_full_pipeline_cache`, `test_full_pipeline_force`) require `OPEN_ROUTER_API_KEY` env var. Use `-k "not ..."` to exclude them.
-- **CLI tests use CliRunner.** Rich Console output is captured correctly in `result.stdout` - no special handling needed.
-- **API key resolution priority:** `--api-key` flag > environment variable > `.env` file. Tests that simulate missing keys must `delenv` both `OPEN_ROUTER_API_KEY` and `DEEPSEEK_API_KEY`.
+- **4 API-dependent tests** require `OPEN_ROUTER_API_KEY` env var:
+  `test_openrouter_generate_single_file`, `test_openrouter_generate_batch`,
+  `test_full_pipeline_cache`, `test_full_pipeline_force`. Skip locally with
+  `-k "not openrouter_generate and not full_pipeline_cache and not full_pipeline_force"`.
+- **CLI tests use `monkeypatch.chdir(tmp_path)`** - all commands run in cwd,
+  so every CLI test must change directory to the temp path.
+- **API key simulation** - when testing missing API keys, use `delenv` on both
+  `OPEN_ROUTER_API_KEY` and `DEEPSEEK_API_KEY`, since the default provider is
+  OpenRouter.
+- For CLI testing, use the appropriate test harness (e.g., `CliRunner` for
+  Click/Typer) and verify that rich console output is captured correctly in
+  `result.stdout`.
 
-## Conventions
+## Miscellaneous
 
-- **2-space indent** everywhere (NOT 4-space)
-- **`api_key`/`resolved`/`provider_client`** - the resolved API key is called `resolved`, the provider instance is `provider_client`
-- **`overrides` (not `cli_args`)** - config overrides use `CLIConfigOverrides` Pydantic model, never a raw dict
-- **After editing imports** - run `ruff check --fix` to sort imports. `ruff.toml` has `lines-after-imports = 2` and `I` rule; unsorted imports are flagged as errors.
-- **Never edit `uv.lock` manually.** It is regenerated by `uv sync` / `uv lock` when dependencies change.
-- **Endline after docstrings**: always make extra endline after doc-string comments in functions and classes doc naming
+- **Never edit `uv.lock` manually.** It is regenerated by `uv lock` or
+  `uv sync` when dependencies change.
